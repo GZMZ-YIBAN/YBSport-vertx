@@ -1,6 +1,5 @@
 # Compiled class file
-*.class
-
+*.iml
 # Log file
 *.log
 
@@ -21,3 +20,10 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+.idea/
+/YBSport-web/src/main/resources/conf/config.json
+.vertx/
+YBSport-web/large.json
+YBSport-web/src/test/resources/
+YBSport-web/target/*
+file-uploads/

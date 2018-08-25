@@ -1,0 +1,13 @@
+// 请修改为自己数据库信息并将当前文件名称修改为 config.json
+{
+  "database": {
+    "host": "127.0.0.1",
+    "username": "",
+    "password": "",
+    "database": "yiban"
+  },
+  "http": {
+    "host": "127.0.0.1",
+    "port": 8888
+  }
+}

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <title></title>
+    <script src="js/mui.min.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css"/>
+    <style type="text/css">
+        body {
+            background-color: #1b1b1b;
+        }
+
+        .chart {
+            width: 100%;
+            height: 400px;
+            padding: 0;
+            margin: 1rem 0 0;
+        }
+
+        .mui-content {
+            background-color: #1b1b1b;
+        }
+
+        button > span {
+            font-size: 20px;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        #barBtn .mui-btn-outlined {
+            border-width: 3px
+        }
+
+        .yiban-handoup {
+            color: orangered;
+        }
+
+        .yiban-money- {
+            color: gold;
+        }
+
+        #help {
+            margin: 2px;
+        }
+        .mui-off-canvas-right {
+            color: #fff;
+        }
+        .title {
+            margin: 35px 15px 10px;
+            font-size: 1.5rem;
+        }
+        .title+.content {
+            margin: 10px 15px 35px;
+            color: #bbb;
+            text-indent: 1em;
+            font-size: 14px;
+            line-height: 24px;
+        }
+        .question-list{
+            margin-top: 1.5rem;
+        }
+        .question{
+            font-size: 1rem;
+            color: white;
+        }
+
+        footer{
+            margin-top: 1.2rem;
+        }
+        footer p{
+            text-align: center;
+            color: grey;
+        }
+    </style>
+</head>
+
+<body>
+<div class="mui-off-canvas-wrap mui-draggable">
+    <aside class="mui-off-canvas-right">
+        <div class="mui-scroll-wrapper">
+            <div class="mui-scroll">
+                <div id="helpContent">
+                    <div class="title"><b>FAQ</b></div>
+                    <div class="content">
+                        <div class="question-list">
+                            <p class="question">
+                                Q:如何获取步数？
+                            </p>
+                            <p class="answer">
+                                A:很简单，开着易班APP放在后台即可，很快的哦~
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:多久清空一次步数？
+                            </p>
+                            <p class="answer">
+                                A:每晚24点清空一次哈！
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:网薪可以干神马？
+                            </p>
+                            <p class="answer">
+                                A:可以去易班网薪商城兑换实物哦！
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:为什么我的步数不显示？
+                            </p>
+                            <p class="answer">
+                                A:可能服务器又抽风了，刷新一下试试哦！(服务器：这锅我不背！)
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:点击兑换后为什么一直显示正在提交？
+                            </p>
+                            <p class="answer">
+                                A:可能服务器又抽风了，刷新一下试试哦！(服务器：这可能真是我的锅...)
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:最后一个问题，小哥哥单身嘛？
+                            </p>
+                            <p class="answer">
+                                A: <b><i style="color: deepskyblue;">单身汪一只！</i></b>不过我只要小学弟哦！汪汪汪！额，哈哈哈哈！
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+
+    <header class="mui-bar mui-bar-transparent">
+        <button type="button" id="help" class="mui-left mui-btn-link mui-btn-nav mui-pull-right">
+            <span class="mui-icon mui-icon-help"></span>
+        </button>
+    </header>
+    <div class="mui-inner-wrap">
+        <div id="refreshContainer" class="mui-content mui-scroll-wrapper">
+            <div class="mui-scroll">
+                <div class="mui-content">
+                    <div class="chart" id="barChart"></div>
+                    <div class="mui-content-padded" id="barBtn">
+                        <!--<button type="button" class="mui-btn mui-btn-primary mui-btn-block" data-loading-text="正在提交...">-->
+                        <!--1000步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"> </span>-->
+                        <!--</button>-->
+                        <!--<button type="button" class="mui-btn mui-btn-success mui-btn-block mui-btn-outlined"-->
+                        <!--data-loading-text="正在提交...">-->
+                        <!--1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>-->
+                        <!--</button>-->
+                    </div>
+                </div>
+                <footer>
+                    <p>Copyright © 2017-2018 by 贵民大易班工作站 EchoCow</p>
+                    <p>All rights reserved.</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="js/echarts-all.js"></script>
+<script type="text/javascript" charset="utf-8">
+    mui('.mui-off-canvas-wrap').offCanvas().show();
+    mui('.mui-off-canvas-wrap').offCanvas().close();
+    mui('.mui-scroll-wrapper').scroll();
+    let cli;
+    navigator.userAgent.indexOf("yiban_android") > (-1) ? cli = "click" : cli = "tap";
+    let myChart = echarts.init(document.getElementById('barChart'));
+    option = {
+        backgroundColor: '#1b1b1b',
+        tooltip: {
+            formatter: "{a}：{c}"
+        },
+        toolbox: {
+            feature: {
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        series: [{
+            name: '今日步数',
+            type: 'gauge',
+            min: 0,
+            max: 5000,
+            splitNumber: 10,
+            axisLine: {
+                lineStyle: {
+                    color: [
+                        [0.2, 'lime'],
+                        [0.8, '#1e90ff'],
+                        [1, '#ff4500']
+                    ],
+                    width: 3,
+                    shadowColor: '#fff',
+                    shadowBlur: 20
+                }
+            },
+            axisLabel: {
+                textStyle: {
+                    fontWeight: 'bolder',
+                    color: '#fff',
+                    shadowColor: '#fff',
+                    shadowBlur: 10
+                }
+            },
+            axisTick: {
+                length: 8,
+                lineStyle: {
+                    color: 'auto',
+                    shadowColor: '#fff',
+                    shadowBlur: 10
+                }
+            },
+            splitLine: {
+                length: 10,
+                lineStyle: {
+                    width: 3,
+                    color: '#fff',
+                    shadowColor: '#fff',
+                    shadowBlur: 10
+                }
+            },
+            pointer: {
+                length: '70%',
+                shadowColor: '#fff',
+                shadowBlur: 5
+            },
+            title: {
+                textStyle: {
+                    fontWeight: 'bolder',
+                    fontSize: 20,
+                    fontStyle: 'italic',
+                    color: '#fff',
+                    shadowColor: '#fff',
+                    shadowBlur: 10
+                }
+            },
+            detail: {
+                backgroundColor: 'rgba(30,144,255,0.8)',
+                borderWidth: 1,
+                borderColor: '#fff',
+                shadowColor: '#fff',
+                shadowBlur: 5,
+                offsetCenter: [0, '50%'],
+                width: 88,
+                formatter: '{value}',
+                textStyle: {
+                    color: 'white'
+                }
+            },
+            data: [{
+                value: 0,
+                name: '易运动'
+            }]
+        }],
+        animationEasing: 'elasticOut',
+        animationDelay: function (idx) {
+            return idx * 10000;
+        }
+    };
+
+    option.series[0].data[0].value = 0;
+    myChart.setOption(option);
+
+    mui.init({
+        pullRefresh: {
+            container: "#refreshContainer",
+            down: {
+                height: 50,
+                auto: true,
+                contentdown: "下拉可以刷新",
+                contentover: "释放立即刷新",
+                contentrefresh: "正在刷新...",
+                callback: pulldownRefresh
+            }
+        }
+    });
+
+
+    const btnClasses1 = ["mui-btn-primary", "mui-btn-success", "mui-btn-warning", "mui-btn-danger", "mui-btn-royal"];
+    const btnClasses2 = ["mui-btn-block", "mui-btn-outlined"];
+
+    function getUrlParam(name) {
+        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+        const r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+
+    function setCookie(c_name, value, expiredays) {
+        const exdate = new Date();
+        exdate.setDate(exdate.getDate() + expiredays);
+        document.cookie = c_name + "=" + escape(value) +
+            ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
+    }
+
+    function getCookie(c_name) {
+        if (document.cookie.length > 0) {
+            let c_start = document.cookie.indexOf(c_name + "=");
+            if (c_start !== -1) {
+                c_start = c_start + c_name.length + 1;
+                let c_end = document.cookie.indexOf(";", c_start);
+                if (c_end === -1) c_end = document.cookie.length;
+                return unescape(document.cookie.substring(c_start, c_end));
+            }
+        }
+        return "";
+    }
+
+    function getElementByAttr(tag, attr, value) {
+        const aElements = document.getElementsByTagName(tag);
+        let aEle = [];
+        for (let i = 0; i < aElements.length; i++) {
+            if (aElements[i].getAttribute(attr) === value + "")
+                aEle.push(aElements[i]);
+        }
+        return aEle;
+    }
+
+    let verify_request = getUrlParam('verify_request');
+    let state = getUrlParam('state');
+    if (verify_request != null) {
+        setCookie("verify_request", verify_request, 1);
+    }
+    if (state != null) {
+        setCookie("state", state, 1);
+    }
+
+    if (getCookie("verify_request") !== "" && verify_request == null) {
+        verify_request = getCookie("verify_request");
+    }
+    if (getCookie("state") !== "" && state == null) {
+        state = getCookie("state");
+    }
+
+    let sportSteps = 0;
+
+    let parameter = {
+        "verifyRequest": verify_request, "state": state
+    };
+
+    mui(document.body).on(cli, '.sub-btn', function (e) {
+        mui(this).button('loading');
+        let btn = mui(this);
+        parameter.typeId = this.getAttribute("data-type-id");
+        parameter.sportSteps = sportSteps;
+        mui.post('http://localhost:8888/buy', parameter, function (res) {
+            btn.button('reset');
+            console.log(res);
+            if (res.code === 200) {
+                if (res.data.status === "success") {
+                    btn[0].disabled = true;
+                    mui.toast("兑换成功！您兑换的网薪将在24小时之内到账，请耐心等待！");
+                    btn[0].innerHTML += "(已兑换)"
+                } else {
+                    mui.toast("兑换失败..." + res.data.message);
+                }
+            } else {
+                mui.toast("兑换失败..." + res.message);
+            }
+        }, 'json');
+    }).on(cli, "#help", function (e) {
+        mui('.mui-off-canvas-wrap').offCanvas().toggle();
+    });
+
+    mui.get('http://localhost:8888', parameter, function (res) {
+        if (res.code === 200) {
+            let number = Math.floor(Math.random() * 2);
+            let btnBlock = document.getElementById("barBtn");
+            mui.each(res.data.list, function (index, item) {
+                if (index > 4) {
+                    index -= 4;
+                }
+                let btn = document.createElement("button");
+                btn.classList.add("mui-btn", btnClasses2[number], btnClasses1[index], "mui-btn-block", "sub-btn");
+                btn.setAttribute("type", "button");
+                btn.setAttribute("data-loading-text", "正在提交......");
+                btn.setAttribute("data-type-id", item.id);
+                btn.innerHTML = item.needSteps + ' 步<span class="iconfont yiban-handoup"></span>' + item.getMoney + ' 网薪' + '<span class="iconfont yiban-money-"> </span>';
+                btnBlock.appendChild(btn);
+            });
+            mui.each(res.data.buy, function (index, item) {
+                let btn = getElementByAttr("button", "data-type-id", item.type)[0];
+                btn.setAttribute('disabled', "disabled");
+                btn.classList.remove("sub-btn");
+                btn.innerHTML += "(已兑换)"
+            });
+        } else {
+            window.location.href = res.data.location;
+        }
+    }, 'json');
+
+    function pulldownRefresh() {
+        option.series[0].data[0].value = 0;
+        myChart.setOption(option);
+        if (verify_request == null || verify_request === "") {
+            mui.toast("请登录...");
+            return;
+        }
+        mui.get('http://localhost:8888/steps', parameter, function (res) {
+            mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+            if (res.code === 200) {
+                let steps = res.data.sport_steps;
+                steps = parseInt(steps);
+                sportSteps = steps;
+                option.series[0].data[0].value = steps;
+                myChart.setOption(option);
+            } else {
+                mui.toast("获取步数发生了一点小错误..." + res.message);
+            }
+        }, 'json');
+    }
+
+    console.log("__ __ _  ___   _   _  _  ");
+    console.log("\\ V /| || o ) / \\ | \\| | ");
+    console.log(" \\ / | || o \\| o || \\\\ | ");
+    console.log(" |_| |_||___/|_n_||_|\\_| ");
+    console.log("----------------------------------------");
+    console.log("---- %c贵州民族大学易班工作站技术研发部 -----","color:#336699");
+    console.log("----------------------------------------");
+    console.log("%c前端：EchoCow","color:#0099FF");
+    console.log("%c后端：EchoCow","color:#FFCC33");
+    console.log("%c设计：EchoCow","color:#FF9966");
+    console.log("----------------------------------------");
+</script>
+</body>
+
+</html>
