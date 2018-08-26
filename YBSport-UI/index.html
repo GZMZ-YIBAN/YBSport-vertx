@@ -89,6 +89,13 @@
         #buysList li {
             list-style-type: disc;
         }
+        #help{
+            margin:0;
+            padding: 1rem;
+            background: none;
+            border:  none;
+            color:  dodgerblue;
+        }
     </style>
 </head>
 
@@ -182,8 +189,7 @@
 
 
     <header class="mui-bar mui-bar-transparent">
-        <button type="button" id="help" class="mui-left mui-btn-link mui-btn-nav mui-pull-right">
-            <span class="mui-icon mui-icon-help"></span>
+        <button type="button" id="help" class="mui-left mui-btn-link mui-btn-nav mui-pull-right mui-icon mui-icon-help">
         </button>
     </header>
     <div class="mui-inner-wrap">
@@ -200,9 +206,15 @@
                         <!--1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>-->
                         <!--</button>-->
                     </div>
-                    <div style="text-align:center; font-size: 0.8rem;margin: 1rem 0;" class="mui-row">
-                        <span id="buys" class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">兑换记录</span>
-                        <span id="see" class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">运动记录</span>
+                    <div style="text-align:center; font-size: 0.8rem;" class="mui-row">
+                        <button id="buys" style="padding: 1rem 0;border: none;"
+                                class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">
+                            兑换记录
+                        </button>
+                        <button id="see" style="padding: 1rem 0;border: none;"
+                                class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">
+                            运动记录
+                        </button>
                     </div>
                 </div>
                 <footer>
@@ -407,8 +419,8 @@
             async: true,
             data: parameter,
             dataType: "json",
-            timeout: 1000,
-            success: function(res) {
+            timeout: 10000,
+            success: function (res) {
                 btn.button('reset');
                 if (res.code === 200) {
                     if (res.data.status === "success") {
@@ -422,7 +434,7 @@
                     mui.toast("兑换失败..." + res.message);
                 }
             },
-            error: function() {
+            error: function () {
                 btn.button('reset');
                 mui.toast("兑换发生了一点小错误...请刷新重试...");
             }
@@ -453,18 +465,18 @@
         async: true,
         data: parameter,
         dataType: "json",
-        timeout: 1000,
-        success: function(res) {
+        timeout: 10000,
+        success: function (res) {
             if (res.code === 200) {
                 let buy = document.getElementById("buysList");
-                if (res.data.list.length === 0){
+                if (res.data.list.length === 0) {
                     let li = document.createElement("li");
                     li.classList.add("mui-table-view-cell");
                     li.innerText = "无兑换数据...";
                     history.appendChild(li);
                     return;
                 }
-                mui.each(res.data.list,function (index, item) {
+                mui.each(res.data.list, function (index, item) {
                     // const num = parseInt(item.sport_steps);
                     let flag = item.is_enable;
                     let color = "mui-badge-purple";
@@ -481,7 +493,7 @@
             }
             console.log(res);
         },
-        error: function() {
+        error: function () {
             mui.toast("获取兑换数据发生了一点小错误...请刷新重试...");
         }
     });
@@ -492,8 +504,8 @@
         async: true,
         data: parameter,
         dataType: "json",
-        timeout: 1000,
-        success: function(res) {
+        timeout: 10000,
+        success: function (res) {
             if (res.code === 200) {
                 let number = Math.floor(Math.random() * 2);
                 let btnBlock = document.getElementById("barBtn");
@@ -519,11 +531,10 @@
                 window.location.href = res.data.location;
             }
         },
-        error: function() {
+        error: function () {
             mui.toast("获取数据发生了一点小错误...请刷新重试...");
         }
     });
-
 
 
     function pulldownRefresh() {
@@ -540,8 +551,8 @@
             async: true,
             data: parameter,
             dataType: "json",
-            timeout: 1000,
-            success: function(res) {
+            timeout: 10000,
+            success: function (res) {
                 mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
                 if (res.code === 200) {
                     let steps = res.data.sport_steps;
@@ -576,7 +587,7 @@
                     mui.toast("获取步数发生了一点小错误..." + res.message);
                 }
             },
-            error: function() {
+            error: function () {
                 mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
                 mui.toast("获取步数发生了一点小错误...请下拉刷新或重新进入试一试哈...");
             }
