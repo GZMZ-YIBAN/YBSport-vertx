@@ -6,7 +6,6 @@ import cn.echocow.yiban.ybsport.utils.ReasultBuilder;
 import cn.echocow.yiban.ybsport.utils.StringToPojoJson;
 import cn.echocow.yiban.ybsport.utils.VertxSingleton;
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
 import io.vertx.core.CompositeFuture;
 import io.vertx.core.Future;
 import io.vertx.core.eventbus.Message;
