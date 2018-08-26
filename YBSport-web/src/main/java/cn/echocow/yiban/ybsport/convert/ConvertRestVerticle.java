@@ -1,5 +1,7 @@
 package cn.echocow.yiban.ybsport.convert;
 
+import cn.echocow.yiban.ybsport.pojo.YbUser;
+import io.vertx.core.MultiMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import cn.echocow.yiban.ybsport.pojo.YbSportBuy;
@@ -14,7 +16,6 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
-import io.vertx.ext.web.codec.BodyCodec;
 import io.vertx.ext.web.handler.*;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 
@@ -67,6 +68,7 @@ public class ConvertRestVerticle extends AbstractVerticle {
         router.options("/").handler(this::options);
         router.get("/").handler(this::getInfo);
         router.get("/steps").handler(this::getSteps);
+        router.get("/buyList").handler(this::buyList);
         router.post("/buy").handler(this::buy);
         ConfigFactory.retriever.getConfig(res -> {
             if (res.succeeded()) {
@@ -87,6 +89,25 @@ public class ConvertRestVerticle extends AbstractVerticle {
         });
     }
 
+    private void buyList(RoutingContext context) {
+        JsonObject auth = checkAuth(context);
+        if (!auth.getBoolean(flag)) {
+            return;
+        }
+        DeliveryOptions options = new DeliveryOptions().addHeader("action", "buyList");
+        VertxSingleton.VERTX.eventBus().<JsonObject>send(ConvertDbVerticle.class.getName(), auth, options, reply -> {
+            if (reply.succeeded()) {
+                LOGGER.info("buyList Info Succeeded!");
+                JsonObject result = ReasultBuilder.buildSuccess(reply.result().body());
+                context.response().end(result.toString());
+            } else {
+                LOGGER.error("Route Error!" + reply.cause() + reply.cause().getMessage());
+                context.fail(reply.cause());
+                context.response().end(ReasultBuilder.buildError().toString());
+            }
+        });
+    }
+
     private void options(RoutingContext context) {
         context.response().end();
     }
@@ -102,8 +123,12 @@ public class ConvertRestVerticle extends AbstractVerticle {
         YbSportBuy buy = new YbSportBuy(auth.getJsonObject("user").toString(), sportSteps, typeId, LocalDate.now().toString());
         VertxSingleton.VERTX.eventBus().<JsonObject>send(ConvertDbVerticle.class.getName(), buy.toJsonObject(), options, reply -> {
             if (reply.succeeded()) {
-                LOGGER.info("Add and buy Succeeded!");
-                JsonObject result = ReasultBuilder.buildSuccess(reply.result().body());
+                JsonObject body = reply.result().body();
+                if (ReasultBuilder.SUCCESS.equals(body.getString(ReasultBuilder.STATUS))){
+                    LOGGER.info("Add and buy Succeeded!");
+                    sendMessage(auth);
+                }
+                JsonObject result = ReasultBuilder.buildSuccess(body);
                 context.response().end(result.toString());
             } else {
                 LOGGER.error("Route Error!" + reply.cause());
@@ -144,15 +169,14 @@ public class ConvertRestVerticle extends AbstractVerticle {
         try {
             client
                     .getAbs(ConstEnum.YB_STEPS.getName())
-                    .as(BodyCodec.jsonObject())
                     .addQueryParam("access_token", auth.getJsonObject("oauth").getString("access_token"))
                     .addQueryParam("days", "30")
                     .send(ar -> {
-                        if (ar.succeeded() && ReasultBuilder.SUCCESS.equals(ar.result().body().getString(ReasultBuilder.STATUS))) {
+                        if (ar.succeeded() && ReasultBuilder.SUCCESS.equals(ar.result().bodyAsJsonObject().getString(ReasultBuilder.STATUS))) {
                             LOGGER.info("Steps Info Succeeded!");
-                            JsonObject body = ar.result().body();
+                            JsonObject body = ar.result().bodyAsJsonObject();
                             JsonArray list = body.getJsonObject("info").getJsonArray("list");
-                            if (list == null ){
+                            if (list == null) {
                                 context.response().end(ReasultBuilder.buildError("无运动数据").toString());
                                 return;
                             }
@@ -160,12 +184,12 @@ public class ConvertRestVerticle extends AbstractVerticle {
                             steps.put("data", new JsonObject().put("sport_steps", "0步"));
                             for (int i = 0; i < list.size(); i++) {
                                 JsonObject object = list.getJsonObject(i);
-                                if (LocalDate.now().toString().equals(object.getString("date_time"))){
-                                    steps.put("data", (JsonObject) list.getValue(0));
+                                if (LocalDate.now().toString().equals(object.getString("date_time"))) {
+                                    steps.put("data", new JsonObject(list.getValue(0).toString()));
                                     break;
                                 }
                             }
-                            steps.getJsonObject("data").put("list",list);
+                            steps.getJsonObject("data").put("list", list);
                             context.response().end(steps.toString());
                         } else {
                             context.response().end(ReasultBuilder.buildError("易班获取步数出现异常...请重新尝试...").toString());
@@ -195,7 +219,7 @@ public class ConvertRestVerticle extends AbstractVerticle {
                     "?client_id=" + ConstEnum.APP_ID.getName() +
                     "&redirect_uri=" + ConstEnum.REDIRECT_URI.getName() +
                     "&state=" + ConstEnum.STATE.getName());
-            context.response().end(ReasultBuilder.buildError(auth,ReasultBuilder.RRDORECT, "未授权").toString());
+            context.response().end(ReasultBuilder.buildError(auth, ReasultBuilder.RRDORECT, "未授权").toString());
             return auth;
         }
         auth.put(flag, true);
@@ -210,5 +234,23 @@ public class ConvertRestVerticle extends AbstractVerticle {
             auth.put(flag, false);
         }
         return auth;
+    }
+
+    private void sendMessage(JsonObject auth) {
+        YbUser user = new YbUser(auth.getJsonObject("user"));
+        MultiMap form = MultiMap.caseInsensitiveMultiMap();
+        form.set("access_token", "68e53198deae45b6f2a681a67141e831d719381a");
+        form.set("to_yb_uid", user.getUserId());
+        form.set("content", "hi！" + user.getUserNick() + user.getUserSex() + ",你已经成功在易运动里兑换了网薪哦~" +
+                "易小熊会在24小时内给你奉上哈！请耐心等待~~");
+        client.postAbs("https://openapi.yiban.cn/msg/letter")
+                .putHeader("content-type", "multipart/form-data")
+                .sendForm(form, ar -> {
+                    if (ar.succeeded()) {
+                        LOGGER.info("Send Message Succeeded!");
+                    } else {
+                        LOGGER.error("Send Message failed!");
+                    }
+                });
     }
 }

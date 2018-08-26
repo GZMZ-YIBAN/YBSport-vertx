@@ -65,14 +65,44 @@ public class ConvertDbVerticle extends AbstractVerticle {
                 getInfo(message);
                 break;
             case "buy":
-                bug(message);
+                buy(message);
+                break;
+            case "buyList":
+                buyList(message);
                 break;
             default:
                 break;
         }
     }
 
-    private void bug(Message<JsonObject> message) {
+    private void buyList(Message<JsonObject> message) {
+        JsonObject auth = message.body();
+        JsonArray params = new JsonArray();
+        params.add(auth.getJsonObject("user").getString("userid"));
+        postgreSQLClient.getConnection(ar -> {
+            if (ar.succeeded()){
+                SQLConnection connection = ar.result();
+                connection.queryWithParams("SELECT b.date,t.get_money,b.is_enable FROM ybsport_buy b " +
+                        "LEFT JOIN ybsport_type t ON t.id = b.type AND (b.yb_user::json#>>'{userid}')::text = ? " +
+                        "ORDER BY b.date DESC,t.get_money ASC",params,res -> {
+                    connection.close();
+                    if (res.succeeded()) {
+                        List<JsonObject> list = res.result().getResults()
+                                .stream()
+                                .map(StringToPojoJson::toBuyJson)
+                                .collect(Collectors.toList());
+                        message.reply(new JsonObject().put("list",list));
+                    } else {
+                        reportQueryError(message, ar.cause(), "Result failed!");
+                    }
+                });
+            } else {
+                reportQueryError(message, ar.cause(), "Connection failed!");
+            }
+        });
+    }
+
+    private void buy(Message<JsonObject> message) {
         YbSportBuy buy = YbSportBuy.fromJsonObject(message.body());
         Future<SQLConnection> connectionFuture = Future.future();
         Future<ResultSet> compareFuture = Future.future();
@@ -115,8 +145,11 @@ public class ConvertDbVerticle extends AbstractVerticle {
                 List<JsonArray> results = ar.result().getResults();
                 if (results.size() == 0) {
                     JsonArray params = new JsonArray().add(buy.getYbUser()).add(buy.getSportSteps()).add(buy.getType());
-                    connectionFuture.result().updateWithParams("INSERT INTO public.ybsport_buy (id, yb_user, sport_steps, type, date) " +
-                            "VALUES (DEFAULT, ?, ?, ?, DEFAULT)", params, updateFuture);
+                    connectionFuture.result().updateWithParams("INSERT INTO public.ybsport_buy (id, yb_user, sport_steps, type, date ,is_enable) " +
+                            "VALUES (DEFAULT, ?, ?, ?, DEFAULT, DEFAULT)", params, updateFuture);
+                } else {
+                    connectionFuture.result().close();
+                    message.reply(new JsonObject().put("status", "failed").put("message", "您今日的已经兑换过了~请明天再来吧！"));
                 }
             } else {
                 connectionFuture.result().close();

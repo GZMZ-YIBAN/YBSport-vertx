@@ -85,6 +85,10 @@
         .mui-table-view-cell {
             background-color: #333;
         }
+
+        #buysList li {
+            list-style-type: disc;
+        }
     </style>
 </head>
 
@@ -93,7 +97,7 @@
     <aside class="mui-off-canvas-right">
         <div class="mui-scroll-wrapper">
             <div class="mui-scroll">
-                <div id="helpContent">
+                <div id="helpContent" class="mui-hidden">
                     <div class="title"><b>FAQ</b></div>
                     <div class="content">
                         <div class="question-list">
@@ -109,7 +113,7 @@
                                 Q:为何步数不一致？
                             </p>
                             <p class="answer">
-                                A:易班同步可能有些许延迟哦，请耐心等待后再来看看~
+                                A:易班同步可能有些许延迟哦，你可以进入易班APP下方的 <b>探究 - 易运动</b> 来刷新步数哦！或者耐心等待后再来看看~~
                             </p>
                         </div>
                         <div class="question-list">
@@ -133,7 +137,7 @@
                                 Q:为什么我的步数不显示？
                             </p>
                             <p class="answer">
-                                A:可能服务器又抽风了，刷新一下试试哦！(服务器：这锅我不背！)
+                                A:可能服务器又抽风了，下拉刷新或者重新进入一下试试哦！(服务器：这锅我不背！)
                             </p>
                         </div>
                         <div class="question-list">
@@ -155,10 +159,22 @@
                     </div>
                 </div>
                 <div id="seeContent" class="mui-hidden">
-                    <div class="title">往日步数</div>
+                    <div class="title">运动记录</div>
                     <ul class="mui-table-view" id="historyList">
-
                     </ul>
+                </div>
+                <div id="buysContent" class="mui-hidden">
+                    <div class="title">兑换记录</div>
+                    <div class="mui-row" style="margin: 1rem">
+                        <div class="mui-col-sm-6 mui-col-xs-6" style="text-align: center">
+                            <span class="mui-badge mui-badge-success">已下发</span>
+                        </div>
+                        <div class="mui-col-sm-6 mui-col-xs-6" style="text-align: center">
+                            <span class="mui-badge mui-badge-purple">等待中</span>
+                        </div>
+                    </div>
+                    <div class="mui-table-view" id="buysList">
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,8 +200,9 @@
                         <!--1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>-->
                         <!--</button>-->
                     </div>
-                    <div style="text-align:center; font-size: 0.8rem;">
-                        <a href="" id="see" style="color:dodgerblue;">查看往日运动记录</a>
+                    <div style="text-align:center; font-size: 0.8rem;margin: 1rem 0;" class="mui-row">
+                        <span id="buys" class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">兑换记录</span>
+                        <span id="see" class="mui-col-sm-6 mui-col-xs-6 mui-badge mui-badge-royal mui-badge-inverted">运动记录</span>
                     </div>
                 </div>
                 <footer>
@@ -195,8 +212,8 @@
             </div>
         </div>
     </div>
-
 </div>
+
 <script src="js/echarts-all.js"></script>
 <script type="text/javascript" charset="utf-8">
     mui('.mui-off-canvas-wrap').offCanvas().show();
@@ -383,102 +400,188 @@
         let btn = mui(this);
         parameter.typeId = this.getAttribute("data-type-id");
         parameter.sportSteps = sportSteps;
-        mui.post('http://localhost:8888/buy', parameter, function (res) {
-            btn.button('reset');
-            console.log(res);
-            if (res.code === 200) {
-                if (res.data.status === "success") {
-                    btn[0].disabled = true;
-                    mui.toast("兑换成功！您兑换的网薪将在24小时之内到账，请耐心等待！");
-                    btn[0].innerHTML += "(已兑换)"
+
+        mui.ajax({
+            type: "post",
+            url: "http://127.0.0.1:8000/buy",
+            async: true,
+            data: parameter,
+            dataType: "json",
+            timeout: 1000,
+            success: function(res) {
+                btn.button('reset');
+                if (res.code === 200) {
+                    if (res.data.status === "success") {
+                        btn[0].disabled = true;
+                        mui.toast("兑换成功！您兑换的网薪将在24小时之内到账，请耐心等待！");
+                        btn[0].innerHTML += "(已兑换)"
+                    } else {
+                        mui.toast("兑换失败..." + res.data.message);
+                    }
                 } else {
-                    mui.toast("兑换失败..." + res.data.message);
+                    mui.toast("兑换失败..." + res.message);
                 }
-            } else {
-                mui.toast("兑换失败..." + res.message);
+            },
+            error: function() {
+                btn.button('reset');
+                mui.toast("兑换发生了一点小错误...请刷新重试...");
             }
-        }, 'json');
+        });
+
     }).on(cli, "#help", function () {
         mui('.mui-off-canvas-wrap').offCanvas().toggle();
         mui('#helpContent')[0].classList.remove("mui-hidden");
         mui('#seeContent')[0].classList.add("mui-hidden");
+        mui('#buysContent')[0].classList.add("mui-hidden");
+
     }).on(cli, "#see", function () {
         mui('.mui-off-canvas-wrap').offCanvas().toggle();
         mui('#helpContent')[0].classList.add("mui-hidden");
         mui('#seeContent')[0].classList.remove("mui-hidden");
+        mui('#buysContent')[0].classList.add("mui-hidden");
+    }).on(cli, "#buys", function () {
+        mui('.mui-off-canvas-wrap').offCanvas().toggle();
+        mui('#helpContent')[0].classList.add("mui-hidden");
+        mui('#seeContent')[0].classList.add("mui-hidden");
+        mui('#buysContent')[0].classList.remove("mui-hidden");
     });
 
-    mui.get('http://localhost:8888', parameter, function (res) {
-        if (res.code === 200) {
-            let number = Math.floor(Math.random() * 2);
-            let btnBlock = document.getElementById("barBtn");
-            mui.each(res.data.list, function (index, item) {
-                if (index > 4) {
-                    index -= 4;
+
+    mui.ajax({
+        type: "get",
+        url: "http://127.0.0.1:8000/buyList",
+        async: true,
+        data: parameter,
+        dataType: "json",
+        timeout: 1000,
+        success: function(res) {
+            if (res.code === 200) {
+                let buy = document.getElementById("buysList");
+                if (res.data.list.length === 0){
+                    let li = document.createElement("li");
+                    li.classList.add("mui-table-view-cell");
+                    li.innerText = "无兑换数据...";
+                    history.appendChild(li);
+                    return;
                 }
-                let btn = document.createElement("button");
-                btn.classList.add("mui-btn", btnClasses2[number], btnClasses1[index], "mui-btn-block", "sub-btn");
-                btn.setAttribute("type", "button");
-                btn.setAttribute("data-loading-text", "正在提交......");
-                btn.setAttribute("data-type-id", item.id);
-                btn.innerHTML = item.needSteps + ' 步<span class="iconfont yiban-handoup"></span>' + item.getMoney + ' 网薪' + '<span class="iconfont yiban-money-"> </span>';
-                btnBlock.appendChild(btn);
-            });
-            mui.each(res.data.buy, function (index, item) {
-                let btn = getElementByAttr("button", "data-type-id", item.type)[0];
-                btn.setAttribute('disabled', "disabled");
-                btn.classList.remove("sub-btn");
-                btn.innerHTML += "(已兑换)"
-            });
-        } else {
-            window.location.href = res.data.location;
+                mui.each(res.data.list,function (index, item) {
+                    // const num = parseInt(item.sport_steps);
+                    let flag = item.is_enable;
+                    let color = "mui-badge-purple";
+                    if (flag === true) {
+                        color = "mui-badge-success"
+                    }
+                    let li = document.createElement("li");
+                    li.classList.add("mui-table-view-cell");
+                    li.innerHTML = item.date + "<span class='mui-badge " + color + "'>" + item.get_money + "网薪</span>";
+                    buy.appendChild(li);
+                });
+            } else {
+
+            }
+            console.log(res);
+        },
+        error: function() {
+            mui.toast("获取兑换数据发生了一点小错误...请刷新重试...");
         }
-    }, 'json');
+    });
+
+    mui.ajax({
+        type: "get",
+        url: "http://127.0.0.1:8000/",
+        async: true,
+        data: parameter,
+        dataType: "json",
+        timeout: 1000,
+        success: function(res) {
+            if (res.code === 200) {
+                let number = Math.floor(Math.random() * 2);
+                let btnBlock = document.getElementById("barBtn");
+                mui.each(res.data.list, function (index, item) {
+                    if (index > 4) {
+                        index -= 4;
+                    }
+                    let btn = document.createElement("button");
+                    btn.classList.add("mui-btn", btnClasses2[number], btnClasses1[index], "mui-btn-block", "sub-btn");
+                    btn.setAttribute("type", "button");
+                    btn.setAttribute("data-loading-text", "正在提交......");
+                    btn.setAttribute("data-type-id", item.id);
+                    btn.innerHTML = item.needSteps + ' 步<span class="iconfont yiban-handoup"></span>' + item.getMoney + ' 网薪' + '<span class="iconfont yiban-money-"> </span>';
+                    btnBlock.appendChild(btn);
+                });
+                mui.each(res.data.buy, function (index, item) {
+                    let btn = getElementByAttr("button", "data-type-id", item.type)[0];
+                    btn.setAttribute('disabled', "disabled");
+                    btn.classList.remove("sub-btn");
+                    btn.innerHTML += "(已兑换)"
+                });
+            } else {
+                window.location.href = res.data.location;
+            }
+        },
+        error: function() {
+            mui.toast("获取数据发生了一点小错误...请刷新重试...");
+        }
+    });
+
+
 
     function pulldownRefresh() {
         option.series[0].data[0].value = 0;
         myChart.setOption(option);
         if (verify_request == null || verify_request === "") {
-            mui.toast("请登录...");
+            mui.toast("您还没有登录哦...请稍等，正在跳转登录....");
             return;
         }
-        mui.get('http://localhost:8888/steps', parameter, function (res) {
-            mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
-            if (res.code === 200) {
-                console.log(res);
-                let steps = res.data.sport_steps;
-                steps = parseInt(steps);
-                sportSteps = steps;
-                option.series[0].data[0].value = steps;
-                myChart.setOption(option);
-                if (res.data.list.length === 0){
-                    let li = document.createElement("li");
-                    li.classList.add("mui-table-view-cell");
+
+        mui.ajax({
+            type: "get",
+            url: "http://127.0.0.1:8000/steps",
+            async: true,
+            data: parameter,
+            dataType: "json",
+            timeout: 1000,
+            success: function(res) {
+                mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+                if (res.code === 200) {
+                    let steps = res.data.sport_steps;
+                    steps = parseInt(steps);
+                    sportSteps = steps;
+                    option.series[0].data[0].value = steps;
+                    myChart.setOption(option);
                     let history = document.getElementById("historyList");
-                    li.innerText = "无运动数据...";
-                    history.appendChild(li);
-                    return;
-                }
-                mui.each(res.data.list, function (index, item) {
-                    const num = parseInt(item.sport_steps);
-                    let color = "mui-badge-purple";
-                    if (num > 1000 && num < 5000){
-                        color = "mui-badge-success";
-                    } else if (num >5000 && num < 10000){
-                        color = "mui-badge-warning";
-                    } else if (num > 10000){
-                        color = "mui-badge-danger";
+                    if (res.data.list.length === 0) {
+                        let li = document.createElement("li");
+                        li.classList.add("mui-table-view-cell");
+                        li.innerText = "无运动数据...";
+                        history.appendChild(li);
+                        return;
                     }
-                    let history = document.getElementById("historyList");
-                    let li = document.createElement("li");
-                    li.classList.add("mui-table-view-cell");
-                    li.innerHTML = item.date_time + "<span class='mui-badge " + color + "'>" + item.sport_steps + "</span>";
-                    history.appendChild(li);
-                })
-            } else {
-                mui.toast("获取步数发生了一点小错误..." + res.message);
+                    mui.each(res.data.list, function (index, item) {
+                        const num = parseInt(item.sport_steps);
+                        let color = "mui-badge-purple";
+                        if (num > 1000 && num < 5000) {
+                            color = "mui-badge-success";
+                        } else if (num > 5000 && num < 10000) {
+                            color = "mui-badge-warning";
+                        } else if (num > 10000) {
+                            color = "mui-badge-danger";
+                        }
+                        let li = document.createElement("li");
+                        li.classList.add("mui-table-view-cell");
+                        li.innerHTML = item.date_time + "<span class='mui-badge " + color + "'>" + item.sport_steps + "</span>";
+                        history.appendChild(li);
+                    })
+                } else {
+                    mui.toast("获取步数发生了一点小错误..." + res.message);
+                }
+            },
+            error: function() {
+                mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+                mui.toast("获取步数发生了一点小错误...请下拉刷新或重新进入试一试哈...");
             }
-        }, 'json');
+        });
+
     }
 
     console.log("__ __ _  ___   _   _  _  ");

@@ -23,13 +23,15 @@ public class YbSportBuy {
     private long sportSteps;
     private long type;
     private Date date;
+    private boolean isEnable;
 
-    public YbSportBuy(long id, String ybUser, long sportSteps, long type, String date) {
+    public YbSportBuy(long id, String ybUser, long sportSteps, long type, String data, boolean isEnable) {
         this.id = id;
         this.ybUser = ybUser;
         this.sportSteps = sportSteps;
         this.type = type;
         this.date = Date.valueOf(LocalDate.now());
+        this.isEnable = false;
     }
 
     public YbSportBuy(String ybUser, long sportSteps, long type, String date) {
@@ -37,11 +39,25 @@ public class YbSportBuy {
         this.sportSteps = sportSteps;
         this.type = type;
         this.date = Date.valueOf(LocalDate.now());
+        this.isEnable = false;
     }
 
-    public static YbSportBuy fromJsonObject(JsonObject object){
-        return new YbSportBuy(object.getLong("id"),object.getJsonObject("ybUser").toString(),
-                object.getLong("sportSteps"),object.getLong("type"),object.getString("date"));
+    public boolean isEnable() {
+        return isEnable;
+    }
+
+    public void setEnable(boolean enable) {
+        isEnable = enable;
+    }
+
+    public static YbSportBuy fromJsonObject(JsonObject object) {
+        boolean flag = false;
+        if (object.getBoolean("isEnable") != null){
+            flag = object.getBoolean("isEnabled");
+        }
+        return new YbSportBuy(object.getLong("id"), object.getJsonObject("ybUser").toString(),
+                object.getLong("sportSteps"), object.getLong("type"), object.getString("date")
+                ,flag);
     }
 
     public long getId() {
@@ -94,7 +110,7 @@ public class YbSportBuy {
     }
 
     /**
-     *  记录！！！！
+     * 记录！！！！
      */
     public JsonObject toJsonObject() {
         return new JsonObject()
