@@ -14,10 +14,13 @@ import io.vertx.core.json.JsonObject;
  **/
 @SuppressWarnings("all")
 public class ReasultBuilder {
-    public static final int SUCCESS = 200;
+    public static final int SUCCESS_CODE = 200;
     public static final int ERROR_500 = 500;
     public static final int RRDORECT = 302;
     public static final int NO_AUTH = 403;
+
+    public static final String SUCCESS = "success";
+    public static final String STATUS = "status";
 
     public static final int QUERY_ERROR = 1;
     public static final int INSERT_ERROR = 2;
@@ -28,11 +31,11 @@ public class ReasultBuilder {
     }
 
     public static JsonObject buildSuccess(JsonObject data) {
-        return new JsonObject().put("code", SUCCESS).put("data", data).put("msg", "请求成功！");
+        return new JsonObject().put("code", SUCCESS_CODE).put("data", data).put("msg", "请求成功！");
     }
 
     public static JsonObject buildSuccess() {
-        return new JsonObject().put("code", SUCCESS).put("data", "null").put("msg", "请求成功！");
+        return new JsonObject().put("code", SUCCESS_CODE).put("data", "null").put("msg", "请求成功！");
     }
 
     public static JsonObject buildError(JsonObject data, Integer code, String msg) {

@@ -46,40 +46,50 @@
         #help {
             margin: 2px;
         }
+
         .mui-off-canvas-right {
             color: #fff;
         }
+
         .title {
             margin: 35px 15px 10px;
             font-size: 1.5rem;
         }
-        .title+.content {
+
+        .title + .content {
             margin: 10px 15px 35px;
             color: #bbb;
             text-indent: 1em;
             font-size: 14px;
             line-height: 24px;
         }
-        .question-list{
+
+        .question-list {
             margin-top: 1.5rem;
         }
-        .question{
+
+        .question {
             font-size: 1rem;
             color: white;
         }
 
-        footer{
+        footer {
             margin-top: 1.2rem;
         }
-        footer p{
+
+        footer p {
             text-align: center;
             color: grey;
+        }
+
+        .mui-table-view-cell {
+            background-color: #333;
         }
     </style>
 </head>
 
 <body>
-<div class="mui-off-canvas-wrap mui-draggable">
+<div class="mui-off-canvas-wrap mui-draggable mui-scalable">
     <aside class="mui-off-canvas-right">
         <div class="mui-scroll-wrapper">
             <div class="mui-scroll">
@@ -92,6 +102,14 @@
                             </p>
                             <p class="answer">
                                 A:很简单，开着易班APP放在后台即可，很快的哦~
+                            </p>
+                        </div>
+                        <div class="question-list">
+                            <p class="question">
+                                Q:为何步数不一致？
+                            </p>
+                            <p class="answer">
+                                A:易班同步可能有些许延迟哦，请耐心等待后再来看看~
                             </p>
                         </div>
                         <div class="question-list">
@@ -136,6 +154,12 @@
                         </div>
                     </div>
                 </div>
+                <div id="seeContent" class="mui-hidden">
+                    <div class="title">往日步数</div>
+                    <ul class="mui-table-view" id="historyList">
+
+                    </ul>
+                </div>
             </div>
         </div>
     </aside>
@@ -159,6 +183,9 @@
                         <!--data-loading-text="正在提交...">-->
                         <!--1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>-->
                         <!--</button>-->
+                    </div>
+                    <div style="text-align:center; font-size: 0.8rem;">
+                        <a href="" id="see" style="color:dodgerblue;">查看往日运动记录</a>
                     </div>
                 </div>
                 <footer>
@@ -351,7 +378,7 @@
         "verifyRequest": verify_request, "state": state
     };
 
-    mui(document.body).on(cli, '.sub-btn', function (e) {
+    mui(document.body).on(cli, '.sub-btn', function () {
         mui(this).button('loading');
         let btn = mui(this);
         parameter.typeId = this.getAttribute("data-type-id");
@@ -371,8 +398,14 @@
                 mui.toast("兑换失败..." + res.message);
             }
         }, 'json');
-    }).on(cli, "#help", function (e) {
+    }).on(cli, "#help", function () {
         mui('.mui-off-canvas-wrap').offCanvas().toggle();
+        mui('#helpContent')[0].classList.remove("mui-hidden");
+        mui('#seeContent')[0].classList.add("mui-hidden");
+    }).on(cli, "#see", function () {
+        mui('.mui-off-canvas-wrap').offCanvas().toggle();
+        mui('#helpContent')[0].classList.add("mui-hidden");
+        mui('#seeContent')[0].classList.remove("mui-hidden");
     });
 
     mui.get('http://localhost:8888', parameter, function (res) {
@@ -412,11 +445,36 @@
         mui.get('http://localhost:8888/steps', parameter, function (res) {
             mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
             if (res.code === 200) {
+                console.log(res);
                 let steps = res.data.sport_steps;
                 steps = parseInt(steps);
                 sportSteps = steps;
                 option.series[0].data[0].value = steps;
                 myChart.setOption(option);
+                if (res.data.list.length === 0){
+                    let li = document.createElement("li");
+                    li.classList.add("mui-table-view-cell");
+                    let history = document.getElementById("historyList");
+                    li.innerText = "无运动数据...";
+                    history.appendChild(li);
+                    return;
+                }
+                mui.each(res.data.list, function (index, item) {
+                    const num = parseInt(item.sport_steps);
+                    let color = "mui-badge-purple";
+                    if (num > 1000 && num < 5000){
+                        color = "mui-badge-success";
+                    } else if (num >5000 && num < 10000){
+                        color = "mui-badge-warning";
+                    } else if (num > 10000){
+                        color = "mui-badge-danger";
+                    }
+                    let history = document.getElementById("historyList");
+                    let li = document.createElement("li");
+                    li.classList.add("mui-table-view-cell");
+                    li.innerHTML = item.date_time + "<span class='mui-badge " + color + "'>" + item.sport_steps + "</span>";
+                    history.appendChild(li);
+                })
             } else {
                 mui.toast("获取步数发生了一点小错误..." + res.message);
             }
@@ -428,11 +486,11 @@
     console.log(" \\ / | || o \\| o || \\\\ | ");
     console.log(" |_| |_||___/|_n_||_|\\_| ");
     console.log("----------------------------------------");
-    console.log("---- %c贵州民族大学易班工作站技术研发部 -----","color:#336699");
+    console.log("---- %c贵州民族大学易班工作站技术研发部 -----", "color:#336699");
     console.log("----------------------------------------");
-    console.log("%c前端：EchoCow","color:#0099FF");
-    console.log("%c后端：EchoCow","color:#FFCC33");
-    console.log("%c设计：EchoCow","color:#FF9966");
+    console.log("%c前端：EchoCow", "color:#0099FF");
+    console.log("%c后端：EchoCow", "color:#FFCC33");
+    console.log("%c设计：EchoCow", "color:#FF9966");
     console.log("----------------------------------------");
 </script>
 </body>

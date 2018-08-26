@@ -61,6 +61,7 @@ public class ConvertRestVerticle extends AbstractVerticle {
 
         router.route("/").handler(ctx -> {
             ctx.response().putHeader("content-type", "application/json");
+            ctx.response().setStatusCode(ReasultBuilder.SUCCESS_CODE);
             ctx.next();
         });
         router.options("/").handler(this::options);
@@ -103,11 +104,11 @@ public class ConvertRestVerticle extends AbstractVerticle {
             if (reply.succeeded()) {
                 LOGGER.info("Add and buy Succeeded!");
                 JsonObject result = ReasultBuilder.buildSuccess(reply.result().body());
-                context.response().setStatusCode(200).end(result.toString());
+                context.response().end(result.toString());
             } else {
                 LOGGER.error("Route Error!" + reply.cause());
                 context.fail(reply.cause());
-                context.response().setStatusCode(500).end(ReasultBuilder.buildError().toString());
+                context.response().end(ReasultBuilder.buildError().toString());
             }
         });
     }
@@ -124,11 +125,11 @@ public class ConvertRestVerticle extends AbstractVerticle {
             if (reply.succeeded()) {
                 LOGGER.info("Get Info Succeeded!");
                 JsonObject result = ReasultBuilder.buildSuccess(reply.result().body());
-                context.response().setStatusCode(200).end(result.toString());
+                context.response().end(result.toString());
             } else {
                 LOGGER.error("Route Error!" + reply.cause());
                 context.fail(reply.cause());
-                context.response().setStatusCode(500).end(ReasultBuilder.buildError().toString());
+                context.response().end(ReasultBuilder.buildError().toString());
             }
         });
 
@@ -145,30 +146,36 @@ public class ConvertRestVerticle extends AbstractVerticle {
                     .getAbs(ConstEnum.YB_STEPS.getName())
                     .as(BodyCodec.jsonObject())
                     .addQueryParam("access_token", auth.getJsonObject("oauth").getString("access_token"))
-                    .addQueryParam("days", "1")
+                    .addQueryParam("days", "30")
                     .send(ar -> {
-                        if (ar.succeeded()) {
+                        if (ar.succeeded() && ReasultBuilder.SUCCESS.equals(ar.result().body().getString(ReasultBuilder.STATUS))) {
                             LOGGER.info("Steps Info Succeeded!");
                             JsonObject body = ar.result().body();
-                            System.out.println(body.toString());
-                            JsonArray jsonArray = body.getJsonObject("info")
-                                    .getJsonArray("list");
-                            JsonObject steps = ReasultBuilder.buildSuccess();
-                            if (jsonArray.size() == 0) {
-                                steps.put("data", new JsonObject().put("sport_steps", "0步"));
-                            } else {
-                                steps.put("data", (JsonObject) jsonArray.getValue(0));
+                            JsonArray list = body.getJsonObject("info").getJsonArray("list");
+                            if (list == null ){
+                                context.response().end(ReasultBuilder.buildError("无运动数据").toString());
+                                return;
                             }
-                            context.response().setStatusCode(200).end(steps.toString());
+                            JsonObject steps = ReasultBuilder.buildSuccess();
+                            steps.put("data", new JsonObject().put("sport_steps", "0步"));
+                            for (int i = 0; i < list.size(); i++) {
+                                JsonObject object = list.getJsonObject(i);
+                                if (LocalDate.now().toString().equals(object.getString("date_time"))){
+                                    steps.put("data", (JsonObject) list.getValue(0));
+                                    break;
+                                }
+                            }
+                            steps.getJsonObject("data").put("list",list);
+                            context.response().end(steps.toString());
                         } else {
-                            context.response().setStatusCode(200).end(ReasultBuilder.buildError("易班获取步数出现异常...请重新尝试...").toString());
+                            context.response().end(ReasultBuilder.buildError("易班获取步数出现异常...请重新尝试...").toString());
                             context.fail(ar.cause());
                             LOGGER.error("Steps Info Failed!");
                         }
                     });
         } catch (UnknownError exception) {
             LOGGER.error("Steps Info Failed!");
-            context.response().setStatusCode(200).end(ReasultBuilder.buildError("易班获取步数出现异常...请重新尝试...").toString());
+            context.response().end(ReasultBuilder.buildError("易班获取步数出现异常...请重新尝试...").toString());
         }
 
     }
@@ -188,7 +195,7 @@ public class ConvertRestVerticle extends AbstractVerticle {
                     "?client_id=" + ConstEnum.APP_ID.getName() +
                     "&redirect_uri=" + ConstEnum.REDIRECT_URI.getName() +
                     "&state=" + ConstEnum.STATE.getName());
-            context.response().end(ReasultBuilder.buildError(auth,302, "未授权").toString());
+            context.response().end(ReasultBuilder.buildError(auth,ReasultBuilder.RRDORECT, "未授权").toString());
             return auth;
         }
         auth.put(flag, true);
