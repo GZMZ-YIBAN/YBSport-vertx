@@ -23,13 +23,15 @@ import static io.vertx.core.spi.resolver.ResolverProvider.DISABLE_DNS_RESOLVER_P
  **/
 public class Application extends AbstractVerticle {
     public static void main(String[] args) {
+        System.setProperty("vertx.logger-delegate-factory-class-name",
+                "io.vertx.core.logging.Log4j2LogDelegateFactory");
+        System.getProperties().setProperty(DISABLE_DNS_RESOLVER_PROP_NAME,"true");
         Vertx vertx = VertxSingleton.VERTX;
         vertx.deployVerticle(Application.class.getName());
     }
 
     @Override
     public void start(Future<Void> startFuture) {
-        System.getProperties().setProperty(DISABLE_DNS_RESOLVER_PROP_NAME,"true");
         Future<String> dbVerticleDeployment = Future.future();
         vertx.deployVerticle(new ConvertDbVerticle(), dbVerticleDeployment.completer());
         dbVerticleDeployment.compose(id -> {

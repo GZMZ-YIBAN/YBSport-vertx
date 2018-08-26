@@ -1,5 +1,7 @@
 package cn.echocow.yiban.ybsport.convert;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import cn.echocow.yiban.ybsport.pojo.YbSportBuy;
 import cn.echocow.yiban.ybsport.utils.ConfigFactory;
 import cn.echocow.yiban.ybsport.utils.ReasultBuilder;
@@ -11,14 +13,11 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.asyncsql.AsyncSQLClient;
 import io.vertx.ext.asyncsql.PostgreSQLClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.sql.UpdateResult;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +33,7 @@ import java.util.stream.Collectors;
  * -----------------------------
  **/
 public class ConvertDbVerticle extends AbstractVerticle {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertDbVerticle.class);
+    private static final Logger LOGGER = LogManager.getLogger();
     private static final String ACTION = "action";
     private AsyncSQLClient postgreSQLClient;
 

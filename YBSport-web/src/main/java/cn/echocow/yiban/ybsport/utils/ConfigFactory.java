@@ -4,8 +4,6 @@ import io.vertx.config.ConfigRetriever;
 import io.vertx.config.ConfigRetrieverOptions;
 import io.vertx.config.ConfigStoreOptions;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 
 
 /**
@@ -19,7 +17,6 @@ import io.vertx.core.logging.LoggerFactory;
  * -----------------------------
  **/
 public class ConfigFactory {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConfigFactory.class);
     public static ConfigRetriever retriever;
     static {
         ConfigStoreOptions fileStore = new ConfigStoreOptions()

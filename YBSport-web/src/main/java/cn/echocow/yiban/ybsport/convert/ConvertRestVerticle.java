@@ -1,5 +1,7 @@
 package cn.echocow.yiban.ybsport.convert;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import cn.echocow.yiban.ybsport.pojo.YbSportBuy;
 import cn.echocow.yiban.ybsport.utils.*;
 import io.vertx.core.AbstractVerticle;
@@ -9,8 +11,6 @@ import io.vertx.core.http.HttpMethod;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.client.WebClient;
@@ -31,7 +31,7 @@ import java.util.Set;
  * @date 22:37 2018/8/22
  */
 public class ConvertRestVerticle extends AbstractVerticle {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ConvertRestVerticle.class);
+    private static final Logger LOGGER = LogManager.getLogger();
     private String flag = ConstEnum.FLAG.getName();
     private WebClient client;
 
@@ -77,7 +77,7 @@ public class ConvertRestVerticle extends AbstractVerticle {
                                     if (listenResult.failed()) {
                                         LOGGER.error("Http Server failed!" + listenResult.cause());
                                     } else {
-                                        LOGGER.info("Http Server started!");
+                                        LOGGER.info("Http Server started on " + httpConfig.getString("host") + ":" + httpConfig.getInteger("port") + "!");
                                     }
                                 });
             } else {

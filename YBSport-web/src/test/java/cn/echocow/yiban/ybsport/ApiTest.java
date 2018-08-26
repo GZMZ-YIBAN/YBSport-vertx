@@ -1,7 +1,5 @@
 package cn.echocow.yiban.ybsport;
 
-import cn.echocow.yiban.ybsport.convert.ConvertDbVerticle;
-import cn.echocow.yiban.ybsport.utils.ConfigFactory;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.ext.unit.Async;

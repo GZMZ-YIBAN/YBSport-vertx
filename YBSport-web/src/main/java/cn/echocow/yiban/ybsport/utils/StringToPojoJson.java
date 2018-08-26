@@ -4,7 +4,6 @@ import cn.echocow.yiban.ybsport.pojo.YbSportBuy;
 import cn.echocow.yiban.ybsport.pojo.YbSportType;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import sun.util.resources.LocaleData;
 
 /**
  * -----------------------------
