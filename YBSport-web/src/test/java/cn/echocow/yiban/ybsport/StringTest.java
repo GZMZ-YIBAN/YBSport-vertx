@@ -3,6 +3,8 @@ package cn.echocow.yiban.ybsport;
 import cn.echocow.yiban.ybsport.utils.StringToPojoJson;
 import io.vertx.core.json.JsonObject;
 import org.junit.Test;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  * -----------------------------
@@ -49,5 +51,10 @@ public class StringTest {
         JsonObject body = new JsonObject("{\"status\":\"success\",\"info\":{\"list\":[{\"sport_steps\":\"7步\",\"date_time\":\"2018-08-25\"}]}}");
         JsonObject jsonObject = body.getJsonObject("info").getJsonArray("list").getJsonObject(0);
         System.out.println(jsonObject);
+    }
+
+    @Test
+    public void name() {
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
     }
 }

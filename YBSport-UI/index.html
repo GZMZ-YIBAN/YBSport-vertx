@@ -5,10 +5,11 @@
     <meta charset="utf-8">
     <meta name="viewport"
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
-    <title></title>
+    <title>民大易运动</title>
     <script src="js/mui.min.js"></script>
     <link href="css/mui.min.css" rel="stylesheet"/>
-    <link rel="stylesheet" type="text/css" href="css/iconfont.css"/>
+    <link href="css/iconfont.css" rel="stylesheet"/>
+    <link href="css/icons-extra.css" rel="stylesheet"/>
     <style type="text/css">
         body {
             background-color: #1b1b1b;
@@ -89,12 +90,13 @@
         #buysList li {
             list-style-type: disc;
         }
-        #help{
-            margin:0;
+
+        #help {
+            margin: 0;
             padding: 1rem;
             background: none;
-            border:  none;
-            color:  dodgerblue;
+            border: none;
+            color: dodgerblue;
         }
     </style>
 </head>
@@ -197,6 +199,7 @@
             <div class="mui-scroll">
                 <div class="mui-content">
                     <div class="chart" id="barChart"></div>
+
                     <div class="mui-content-padded" id="barBtn">
                         <!--<button type="button" class="mui-btn mui-btn-primary mui-btn-block" data-loading-text="正在提交...">-->
                         <!--1000步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"> </span>-->
@@ -218,6 +221,7 @@
                     </div>
                 </div>
                 <footer>
+                    <hr style="border-color: grey;margin: 1rem 1rem;">
                     <p>Copyright © 2017-2018 by 贵民大易班工作站 EchoCow</p>
                     <p>All rights reserved.</p>
                 </footer>
@@ -426,7 +430,8 @@
                     if (res.data.status === "success") {
                         btn[0].disabled = true;
                         mui.toast("兑换成功！您兑换的网薪将在24小时之内到账，请耐心等待！");
-                        btn[0].innerHTML += "(已兑换)"
+                        btn[0].innerHTML += "(已兑换)";
+                        buyList();
                     } else {
                         mui.toast("兑换失败..." + res.data.message);
                     }
@@ -445,7 +450,6 @@
         mui('#helpContent')[0].classList.remove("mui-hidden");
         mui('#seeContent')[0].classList.add("mui-hidden");
         mui('#buysContent')[0].classList.add("mui-hidden");
-
     }).on(cli, "#see", function () {
         mui('.mui-off-canvas-wrap').offCanvas().toggle();
         mui('#helpContent')[0].classList.add("mui-hidden");
@@ -458,50 +462,78 @@
         mui('#buysContent')[0].classList.remove("mui-hidden");
     });
 
-
     mui.ajax({
         type: "get",
-        url: "http://127.0.0.1:8000/buyList",
-        async: true,
-        data: parameter,
+        url: "http://127.0.0.1:8000/status",
+        data: null,
         dataType: "json",
         timeout: 10000,
         success: function (res) {
             if (res.code === 200) {
-                let buy = document.getElementById("buysList");
-                if (res.data.list.length === 0) {
-                    let li = document.createElement("li");
-                    li.classList.add("mui-table-view-cell");
-                    li.innerText = "无兑换数据...";
-                    history.appendChild(li);
-                    return;
+                if (res.data.body === true) {
+                    mui.toast("欢迎贵民大易运动！");
+                    setTimeout(function () {
+                        mui.toast("本次活动时间</br>" + res.data.start + "</br>" + res.data.end);
+                    }, 2000);
+                } else {
+                    mui.alert("不好意思~活动尚未开始哦！", "小提示");
                 }
-                mui.each(res.data.list, function (index, item) {
-                    // const num = parseInt(item.sport_steps);
-                    let flag = item.is_enable;
-                    let color = "mui-badge-purple";
-                    if (flag === true) {
-                        color = "mui-badge-success"
-                    }
-                    let li = document.createElement("li");
-                    li.classList.add("mui-table-view-cell");
-                    li.innerHTML = item.date + "<span class='mui-badge " + color + "'>" + item.get_money + "网薪</span>";
-                    buy.appendChild(li);
-                });
             } else {
-
+                mui.toast("不好意思~发生了点小错误~请刷新重试!", "小提示");
             }
-            console.log(res);
         },
-        error: function () {
-            mui.toast("获取兑换数据发生了一点小错误...请刷新重试...");
+        error: function (res) {
+            mui.toast("不好意思~发生了点小错误~请刷新重试!", "小提示");
         }
     });
+
+
+    function buyList() {
+        mui.ajax({
+            type: "get",
+            url: "http://127.0.0.1:8000/buyList",
+            data: parameter,
+            dataType: "json",
+            timeout: 10000,
+            success: function (res) {
+                if (res.code === 200) {
+                    let buy = document.getElementById("buysList");
+                    buy.innerHTML = "";
+                    if (res.data.list.length === 0) {
+                        let li = document.createElement("li");
+                        li.classList.add("mui-table-view-cell");
+                        li.innerText = "无兑换数据...";
+                        history.appendChild(li);
+                        return;
+                    }
+                    mui.each(res.data.list, function (index, item) {
+                        // const num = parseInt(item.sport_steps);
+                        let flag = item.is_enable;
+                        let color = "mui-badge-purple";
+                        if (flag === true) {
+                            color = "mui-badge-success"
+                        }
+                        let li = document.createElement("li");
+                        li.classList.add("mui-table-view-cell");
+                        li.innerHTML = item.date + "<span class='mui-badge " + color + "'>" + item.get_money + "网薪</span>";
+                        buy.appendChild(li);
+                    });
+                } else {
+
+                }
+                console.log(res);
+            },
+            error: function () {
+                mui.toast("获取兑换数据发生了一点小错误...请刷新重试...");
+            }
+        });
+    }
+
+    buyList();
 
     mui.ajax({
         type: "get",
         url: "http://127.0.0.1:8000/",
-        async: true,
         data: parameter,
         dataType: "json",
         timeout: 10000,
@@ -527,8 +559,11 @@
                     btn.classList.remove("sub-btn");
                     btn.innerHTML += "(已兑换)"
                 });
-            } else {
+            } else if (res.code === 302) {
+                mui.toast("您还没有登录哦...请稍等，正在跳转登录....");
                 window.location.href = res.data.location;
+            } else {
+                mui.toast("获取数据发生了一点小错误...请刷新重试...");
             }
         },
         error: function () {
@@ -540,15 +575,9 @@
     function pulldownRefresh() {
         option.series[0].data[0].value = 0;
         myChart.setOption(option);
-        if (verify_request == null || verify_request === "") {
-            mui.toast("您还没有登录哦...请稍等，正在跳转登录....");
-            return;
-        }
-
         mui.ajax({
             type: "get",
             url: "http://127.0.0.1:8000/steps",
-            async: true,
             data: parameter,
             dataType: "json",
             timeout: 10000,

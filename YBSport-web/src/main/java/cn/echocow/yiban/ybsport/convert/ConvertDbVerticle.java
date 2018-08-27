@@ -19,6 +19,8 @@ import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.sql.UpdateResult;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,9 +72,46 @@ public class ConvertDbVerticle extends AbstractVerticle {
             case "buyList":
                 buyList(message);
                 break;
+            case "status":
+                status(message);
+                break;
             default:
                 break;
         }
+    }
+
+    private void status(Message<JsonObject> message) {
+        LocalDateTime now = LocalDateTime.now();
+        postgreSQLClient.getConnection(ar -> {
+            if (ar.succeeded()) {
+                SQLConnection connection = ar.result();
+                connection.query("SELECT * FROM public.ybsport_time WHERE is_enable = TRUE ORDER BY id LIMIT 1", res -> {
+                    JsonObject reply = new JsonObject();
+                    if (res.succeeded()) {
+                        List<JsonArray> results = res.result().getResults();
+                        if (results.size() == 0) {
+                            reply.put("body", false);
+                        }
+                        JsonArray objects = results.get(0);
+                        LocalDateTime start = LocalDateTime.parse(objects.getString(1));
+                        LocalDateTime end = LocalDateTime.parse(objects.getString(2));
+                        if (now.isBefore(end) && now.isAfter(start)) {
+                            reply.put("body", true);
+                            reply.put("start",start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            reply.put("end",end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                        } else {
+                            reply.put("body", false);
+                        }
+                    } else {
+                        reply.put("body", false);
+                    }
+                    connection.close();
+                    message.reply(reply);
+                });
+            } else {
+                reportQueryError(message, ar.cause(), "Connection failed!");
+            }
+        });
     }
 
     private void buyList(Message<JsonObject> message) {
@@ -80,21 +119,22 @@ public class ConvertDbVerticle extends AbstractVerticle {
         JsonArray params = new JsonArray();
         params.add(auth.getJsonObject("user").getString("userid"));
         postgreSQLClient.getConnection(ar -> {
-            if (ar.succeeded()){
+            if (ar.succeeded()) {
                 SQLConnection connection = ar.result();
                 connection.queryWithParams("SELECT b.date,t.get_money,b.is_enable FROM ybsport_buy b " +
-                        "LEFT JOIN ybsport_type t ON t.id = b.type AND (b.yb_user::json#>>'{userid}')::text = ? " +
-                        "ORDER BY b.date DESC,t.get_money ASC",params,res -> {
-                    connection.close();
+                        "LEFT JOIN ybsport_type t ON t.id = b.type " +
+                        "WHERE (b.yb_user::json#>>'{userid}')::text = ? " +
+                        "ORDER BY b.date DESC,t.get_money ASC", params, res -> {
                     if (res.succeeded()) {
                         List<JsonObject> list = res.result().getResults()
                                 .stream()
                                 .map(StringToPojoJson::toBuyJson)
                                 .collect(Collectors.toList());
-                        message.reply(new JsonObject().put("list",list));
+                        message.reply(new JsonObject().put("list", list));
                     } else {
                         reportQueryError(message, ar.cause(), "Result failed!");
                     }
+                    connection.close();
                 });
             } else {
                 reportQueryError(message, ar.cause(), "Connection failed!");
@@ -105,25 +145,55 @@ public class ConvertDbVerticle extends AbstractVerticle {
     private void buy(Message<JsonObject> message) {
         YbSportBuy buy = YbSportBuy.fromJsonObject(message.body());
         Future<SQLConnection> connectionFuture = Future.future();
+        Future<ResultSet> dateFuture = Future.future();
         Future<ResultSet> compareFuture = Future.future();
         Future<ResultSet> queryFuture = Future.future();
         Future<UpdateResult> updateFuture = Future.future();
+        JsonObject reply = new JsonObject();
         postgreSQLClient.getConnection(connectionFuture);
         connectionFuture.setHandler(ar -> {
             if (ar.succeeded()) {
-                ar.result().queryWithParams("SELECT t.* FROM public.ybsport_type t WHERE t.id = ?",
-                        new JsonArray().add(buy.getType()), compareFuture);
+                ar.result().query("SELECT * FROM public.ybsport_time WHERE is_enable = TRUE ORDER BY id LIMIT 1", dateFuture);
             } else {
-                reportQueryError(message, ar.cause(), "Compare Query Error!");
+                reportQueryError(message, ar.cause(), "Get Connection Error!");
             }
         });
-
-
+        dateFuture.setHandler(ar -> {
+            if (ar.succeeded()) {
+                LocalDateTime now = LocalDateTime.now();
+                List<JsonArray> results = ar.result().getResults();
+                if (results.size() == 0) {
+                    connectionFuture.result().close();
+                    message.reply(new JsonObject().put("status", "failed").put("message", "不在活动时间内哦！请在活动开放时参加~"));
+                } else {
+                    JsonArray objects = results.get(0);
+                    LocalDateTime start = LocalDateTime.parse(objects.getString(1));
+                    LocalDateTime end = LocalDateTime.parse(objects.getString(2));
+                    if (!now.isBefore(end) || !now.isAfter(start)) {
+                        connectionFuture.result().close();
+                        message.reply(new JsonObject().put("status", "failed").put("message", "不在活动时间内哦！请在活动开放时参加~"));
+                        return;
+                    }
+                    connectionFuture.result().queryWithParams("SELECT t.* FROM public.ybsport_type t WHERE t.id = ?",
+                            new JsonArray().add(buy.getType()), compareFuture);
+                }
+            } else {
+                connectionFuture.result().close();
+                reportQueryError(message, ar.cause(), "Date Query Error!");
+            }
+        });
         compareFuture.setHandler(ar -> {
             if (ar.succeeded()) {
                 List<JsonArray> collect = ar.result().getResults()
                         .stream()
-                        .filter(json -> buy.getSportSteps() >= json.getLong(1))
+                        .filter(json -> {
+                            if (buy.getSportSteps() >= json.getLong(1)) {
+                                reply.put("steps",json.getLong(1));
+                                reply.put("money",json.getLong(2));
+                                return true;
+                            }
+                            return false;
+                        })
                         .collect(Collectors.toList());
                 if (collect.size() == 0) {
                     connectionFuture.result().close();
@@ -136,10 +206,10 @@ public class ConvertDbVerticle extends AbstractVerticle {
                             "AND t.date = ? AND t.type = ?", params, queryFuture);
                 }
             } else {
-                reportQueryError(message, ar.cause(), "Query Error!");
+                connectionFuture.result().close();
+                reportQueryError(message, ar.cause(), "Compare Query Error!");
             }
         });
-
         queryFuture.setHandler(ar -> {
             if (ar.succeeded()) {
                 List<JsonArray> results = ar.result().getResults();
@@ -156,12 +226,13 @@ public class ConvertDbVerticle extends AbstractVerticle {
                 reportQueryError(message, ar.cause(), "Query Result Error!");
             }
         });
-
         updateFuture.setHandler(ar -> {
             if (ar.succeeded()) {
                 int updated = ar.result().getUpdated();
                 if (updated > 0) {
-                    message.reply(new JsonObject().put("status", "success"));
+                    message.reply(reply.put("status", "success"));
+                } else {
+                    message.reply(reply.put("status", "failed").put("message", "出现了点小问题，请刷新后重新尝试~！"));
                 }
             } else {
                 reportQueryError(message, ar.cause(), "Update Error!");
@@ -248,7 +319,7 @@ public class ConvertDbVerticle extends AbstractVerticle {
     }
 
     private void reportQueryError(Message<JsonObject> message, Throwable cause, String show) {
-        LOGGER.error("Database query error!", cause);
+        LOGGER.error(show, cause);
         message.fail(ReasultBuilder.QUERY_ERROR, cause.getMessage());
     }
 
