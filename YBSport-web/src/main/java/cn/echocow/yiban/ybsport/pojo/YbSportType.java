@@ -27,6 +27,7 @@ public class YbSportType {
         this.getMoney = getMoney;
         this.isEnable = isEnable;
     }
+
     public YbSportType(String id, String needSteps, String getMoney, String isEnable) {
         this.id = Long.parseLong(id);
         this.needSteps = Long.parseLong(needSteps);

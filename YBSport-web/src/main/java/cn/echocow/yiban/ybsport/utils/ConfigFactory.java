@@ -17,7 +17,11 @@ import io.vertx.core.json.JsonObject;
  * -----------------------------
  **/
 public class ConfigFactory {
+    /**
+     * 可以获取到配置文件的配置信息
+     */
     public static ConfigRetriever retriever;
+
     static {
         ConfigStoreOptions fileStore = new ConfigStoreOptions()
                 .setType("file")

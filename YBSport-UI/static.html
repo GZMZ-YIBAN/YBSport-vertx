@@ -5,14 +5,10 @@
     <meta charset="utf-8">
     <meta name="viewport"
           content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
-    <title>民大易运动</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
-    <link rel="shortcut icon" href="favicon.ico">
-    <link rel="bookmark"  type="image/x-icon"  href="favicon.ico"/>
+    <title></title>
     <script src="js/mui.min.js"></script>
     <link href="css/mui.min.css" rel="stylesheet"/>
-    <link href="css/iconfont.css" rel="stylesheet"/>
-    <link href="css/icons-extra.css" rel="stylesheet"/>
+    <link rel="stylesheet" type="text/css" href="css/iconfont.css"/>
     <style type="text/css">
         body {
             background-color: #1b1b1b;
@@ -105,6 +101,7 @@
 </head>
 
 <body>
+
 <div class="mui-off-canvas-wrap mui-draggable mui-scalable">
     <aside class="mui-off-canvas-right">
         <div class="mui-scroll-wrapper" id="right-tip">
@@ -173,6 +170,9 @@
                 <div id="see-content" class="mui-hidden">
                     <div class="title">运动记录</div>
                     <ul class="mui-table-view" id="history-list">
+                        <li class="mui-table-view-cell">
+                            2018-08-25 <span class='mui-badge mui-badge-purple'>100步</span>
+                        </li>
                     </ul>
                 </div>
                 <div id="buys-content" class="mui-hidden">
@@ -186,6 +186,12 @@
                         </div>
                     </div>
                     <div class="mui-table-view" id="buys-list">
+                        <li class="mui-table-view-cell">
+                            2018-08-25 <span class='mui-badge mui-badge-purple'>100网薪</span>
+                        </li>
+                        <li class="mui-table-view-cell">
+                            2018-08-26 <span class='mui-badge mui-badge-success'>100网薪</span>
+                        </li>
                     </div>
                 </div>
             </div>
@@ -204,13 +210,41 @@
                     <div class="chart" id="barChart"></div>
 
                     <div class="mui-content-padded" id="barBtn">
-                        <!--<button type="button" class="mui-btn mui-btn-primary mui-btn-block" data-loading-text="正在提交...">-->
-                        <!--1000步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"> </span>-->
-                        <!--</button>-->
-                        <!--<button type="button" class="mui-btn mui-btn-success mui-btn-block mui-btn-outlined"-->
-                        <!--data-loading-text="正在提交...">-->
-                        <!--1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>-->
-                        <!--</button>-->
+
+                        <button type="button" class="mui-btn mui-btn-primary mui-btn-block" data-loading-text="正在提交...">
+                            1000 步
+                            <span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>
+                        </button>
+                        <button type="button" class="mui-btn mui-btn-success mui-btn-block" data-loading-text="正在提交...">
+                            2000 步
+                            <span class="iconfont yiban-handoup"></span>20 网薪<span class="iconfont yiban-money-"></span>
+                        </button>
+                        <button type="button" class="mui-btn mui-btn-warning mui-btn-block" data-loading-text="正在提交...">
+                            5000 步
+                            <span class="iconfont yiban-handoup"></span>50 网薪<span class="iconfont yiban-money-"></span>
+                        </button>
+                        <button type="button" class="mui-btn mui-btn-danger mui-btn-block" data-loading-text="正在提交...">
+                            10000 步
+                            <span class="iconfont yiban-handoup"></span>100 网薪<span
+                                class="iconfont yiban-money-"> </span>
+                        </button>
+                        <button type="button" class="mui-btn mui-btn-royal mui-btn-block" data-loading-text="正在提交...">
+                            1000 步
+                            <span class="iconfont yiban-handoup"></span>10 网薪<span class="iconfont yiban-money-"></span>
+                        </button>
+                        <button type="button" class="mui-btn mui-btn-success mui-btn-block mui-btn-outlined"
+                                data-loading-text="正在提交...">1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span
+                                class="iconfont yiban-money-"></span></button>
+                        <button type="button" class="mui-btn mui-btn-warning mui-btn-block mui-btn-outlined"
+                                data-loading-text="正在提交...">1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span
+                                class="iconfont yiban-money-"></span></button>
+                        <button type="button" class="mui-btn mui-btn-danger mui-btn-block mui-btn-outlined"
+                                data-loading-text="正在提交...">1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span
+                                class="iconfont yiban-money-"></span></button>
+                        <button type="button" class="mui-btn mui-btn-royal mui-btn-block mui-btn-outlined"
+                                data-loading-text="正在提交...">1000 步<span class="iconfont yiban-handoup"></span>10 网薪<span
+                                class="iconfont yiban-money-"></span></button>
+
                     </div>
                     <div style="text-align:center; font-size: 0.8rem;" class="mui-row">
                         <button id="buys" style="padding: 1rem 0;border: none;"
@@ -232,15 +266,13 @@
         </div>
     </div>
 </div>
-
 <script src="js/echarts-all.js"></script>
 <script type="text/javascript" charset="utf-8">
-    mui('.mui-off-canvas-wrap').offCanvas().show();
-    mui('.mui-off-canvas-wrap').offCanvas().close();
-    mui('.mui-scroll-wrapper').scroll();
     let cli;
     navigator.userAgent.indexOf("yiban_android") > (-1) ? cli = "click" : cli = "tap";
-    let myChart = echarts.init(document.getElementById('barChart'));
+    mui('.mui-off-canvas-wrap').offCanvas().show();
+    mui('.mui-off-canvas-wrap').offCanvas().close();
+    var myChart = echarts.init(document.getElementById('barChart'));
     option = {
         backgroundColor: '#1b1b1b',
         tooltip: {
@@ -310,6 +342,7 @@
                     shadowBlur: 10
                 }
             },
+
             detail: {
                 backgroundColor: 'rgba(30,144,255,0.8)',
                 borderWidth: 1,
@@ -351,102 +384,15 @@
         }
     });
 
-
-    const btnClasses1 = ["mui-btn-primary", "mui-btn-success", "mui-btn-warning", "mui-btn-danger", "mui-btn-royal"];
-    const btnClasses2 = ["mui-btn-block", "mui-btn-outlined"];
-
-    function getUrlParam(name) {
-        const reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
-        const r = window.location.search.substr(1).match(reg);
-        if (r != null) return unescape(r[2]);
-        return null;
-    }
-
-    function setCookie(c_name, value, expiredays) {
-        const exdate = new Date();
-        exdate.setDate(exdate.getDate() + expiredays);
-        document.cookie = c_name + "=" + escape(value) +
-            ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
-    }
-
-    function getCookie(c_name) {
-        if (document.cookie.length > 0) {
-            let c_start = document.cookie.indexOf(c_name + "=");
-            if (c_start !== -1) {
-                c_start = c_start + c_name.length + 1;
-                let c_end = document.cookie.indexOf(";", c_start);
-                if (c_end === -1) c_end = document.cookie.length;
-                return unescape(document.cookie.substring(c_start, c_end));
-            }
-        }
-        return "";
-    }
-
-    function getElementByAttr(tag, attr, value) {
-        const aElements = document.getElementsByTagName(tag);
-        let aEle = [];
-        for (let i = 0; i < aElements.length; i++) {
-            if (aElements[i].getAttribute(attr) === value + "")
-                aEle.push(aElements[i]);
-        }
-        return aEle;
-    }
-
-    let verify_request = getUrlParam('verify_request');
-    let state = getUrlParam('state');
-    if (verify_request != null) {
-        setCookie("verify_request", verify_request, 1);
-    }
-    if (state != null) {
-        setCookie("state", state, 1);
-    }
-
-    if (getCookie("verify_request") !== "" && verify_request == null) {
-        verify_request = getCookie("verify_request");
-    }
-    if (getCookie("state") !== "" && state == null) {
-        state = getCookie("state");
-    }
-
-    let sportSteps = 0;
-
-    let parameter = {
-        "verifyRequest": verify_request, "state": state
-    };
-
-    mui(document.body).on(cli, '.sub-btn', function () {
+    mui(document.body).on('tap', '.mui-btn', function (e) {
         mui(this).button('loading');
-        let btn = mui(this);
-        parameter.typeId = this.getAttribute("data-type-id");
-        parameter.sportSteps = sportSteps;
-
-        mui.ajax({
-            type: "post",
-            url: "http://127.0.0.1:8000/buy",
-            async: true,
-            data: parameter,
-            dataType: "json",
-            timeout: 10000,
-            success: function (res) {
-                btn.button('reset');
-                if (res.code === 200) {
-                    if (res.data.status === "success") {
-                        btn[0].disabled = true;
-                        mui.toast("兑换成功！您兑换的网薪将在24小时之内到账，请耐心等待！");
-                        btn[0].innerHTML += "(已兑换)";
-                        buyList();
-                    } else {
-                        mui.toast("兑换失败..." + res.data.message);
-                    }
-                } else {
-                    mui.toast("兑换失败..." + res.message);
-                }
-            },
-            error: function () {
-                btn.button('reset');
-                mui.toast("兑换发生了一点小错误...请刷新重试...");
-            }
-        });
+        setTimeout(function () {
+            var btn = mui(this);
+            btn.button('reset');
+            btn[0].disabled = true;
+            mui.toast("兑换成功");
+            console.log(btn);
+        }.bind(this), 2000);
     }).on(cli, "#help", function () {
         mui('#right-tip').scroll().scrollTo(0, 50, 1000);
         mui('.mui-off-canvas-wrap').offCanvas().toggle();
@@ -467,183 +413,18 @@
         mui('#buys-content')[0].classList.remove("mui-hidden");
     });
 
-    mui.ajax({
-        type: "get",
-        url: "http://127.0.0.1:8000/status",
-        data: null,
-        dataType: "json",
-        timeout: 10000,
-        success: function (res) {
-            if (res.code === 200) {
-                if (res.data.body === true) {
-                    mui.toast("欢迎贵民大易运动！");
-                    setTimeout(function () {
-                        if (res.data.long === true) {
-                            mui.toast("本活动现为长期活动哦~");
-                        } else {
-                            mui.toast("本次活动时间</br>" + res.data.start + "</br>" + res.data.end);
-                        }
-                    }, 2000);
-                } else {
-                    mui.alert("不好意思~活动尚未开始哦！", "小提示");
-                }
-            } else {
-                mui.toast("不好意思~发生了点小错误~请刷新重试!", "小提示");
-            }
-        },
-        error: function (res) {
-            mui.toast("不好意思~发生了点小错误~请刷新重试!", "小提示");
-        }
-    });
-
-
-    function buyList() {
-        mui.ajax({
-            type: "get",
-            url: "http://127.0.0.1:8000/buyList",
-            data: parameter,
-            dataType: "json",
-            timeout: 10000,
-            success: function (res) {
-                if (res.code === 200) {
-                    let buy = document.getElementById("buys-list");
-                    buy.innerHTML = "";
-                    if (res.data.list.length === 0) {
-                        let li = document.createElement("li");
-                        li.classList.add("mui-table-view-cell");
-                        li.innerText = "无兑换数据...";
-                        buy.appendChild(li);
-                        return;
-                    }
-                    mui.each(res.data.list, function (index, item) {
-                        // const num = parseInt(item.sport_steps);
-                        let flag = item.is_enable;
-                        let color = "mui-badge-purple";
-                        if (flag === true) {
-                            color = "mui-badge-success"
-                        }
-                        let li = document.createElement("li");
-                        li.classList.add("mui-table-view-cell");
-                        li.innerHTML = item.date + "<span class='mui-badge " + color + "'>" + item.get_money + "网薪</span>";
-                        buy.appendChild(li);
-                    });
-                } else {
-
-                }
-                console.log(res);
-            },
-            error: function () {
-                mui.toast("获取兑换数据发生了一点小错误...请刷新重试...");
-            }
-        });
-    }
-
-    buyList();
-
-    mui.ajax({
-        type: "get",
-        url: "http://127.0.0.1:8000/",
-        data: parameter,
-        dataType: "json",
-        timeout: 10000,
-        success: function (res) {
-            if (res.code === 200) {
-                let number = Math.floor(Math.random() * 2);
-                let btnBlock = document.getElementById("barBtn");
-                mui.each(res.data.list, function (index, item) {
-                    if (index > 4) {
-                        index -= 4;
-                    }
-                    let btn = document.createElement("button");
-                    btn.classList.add("mui-btn", btnClasses2[number], btnClasses1[index], "mui-btn-block", "sub-btn");
-                    btn.setAttribute("type", "button");
-                    btn.setAttribute("data-loading-text", "正在提交......");
-                    btn.setAttribute("data-type-id", item.id);
-                    btn.innerHTML = item.needSteps + ' 步<span class="iconfont yiban-handoup"></span>' + item.getMoney + ' 网薪' + '<span class="iconfont yiban-money-"> </span>';
-                    btnBlock.appendChild(btn);
-                });
-                mui.each(res.data.buy, function (index, item) {
-                    let btn = getElementByAttr("button", "data-type-id", item.type)[0];
-                    btn.setAttribute('disabled', "disabled");
-                    btn.classList.remove("sub-btn");
-                    btn.innerHTML += "(已兑换)"
-                });
-            } else if (res.code === 302) {
-                mui.toast("您还没有登录哦...请稍等，正在跳转登录....");
-                window.location.href = res.data.location;
-            } else {
-                mui.toast("获取数据发生了一点小错误...请刷新重试...");
-            }
-        },
-        error: function () {
-            mui.toast("获取数据发生了一点小错误...请刷新重试...");
-        }
-    });
-
 
     function pulldownRefresh() {
         option.series[0].data[0].value = 0;
         myChart.setOption(option);
-        mui.ajax({
-            type: "get",
-            url: "http://127.0.0.1:8000/steps",
-            data: parameter,
-            dataType: "json",
-            timeout: 10000,
-            success: function (res) {
-                mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
-                if (res.code === 200) {
-                    let steps = res.data.sport_steps;
-                    steps = parseInt(steps);
-                    sportSteps = steps;
-                    option.series[0].data[0].value = steps;
-                    myChart.setOption(option);
-                    let history = document.getElementById("history-list");
-                    if (res.data.list.length === 0) {
-                        let li = document.createElement("li");
-                        li.classList.add("mui-table-view-cell");
-                        li.innerText = "无运动数据...";
-                        history.appendChild(li);
-                        return;
-                    }
-                    mui.each(res.data.list, function (index, item) {
-                        const num = parseInt(item.sport_steps);
-                        let color = "mui-badge-purple";
-                        if (num > 1000 && num < 5000) {
-                            color = "mui-badge-success";
-                        } else if (num > 5000 && num < 10000) {
-                            color = "mui-badge-warning";
-                        } else if (num > 10000) {
-                            color = "mui-badge-danger";
-                        }
-                        let li = document.createElement("li");
-                        li.classList.add("mui-table-view-cell");
-                        li.innerHTML = item.date_time + "<span class='mui-badge " + color + "'>" + item.sport_steps + "</span>";
-                        history.appendChild(li);
-                    })
-                } else {
-                    mui.toast("获取步数发生了一点小错误..." + res.message);
-                }
-            },
-            error: function () {
-                mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
-                mui.toast("获取步数发生了一点小错误...请下拉刷新或重新进入试一试哈...");
-            }
-        });
-
+        setTimeout(function () {
+            option.series[0].data[0].value = 10000;
+            myChart.setOption(option);
+            mui('#refreshContainer').pullRefresh().endPulldownToRefresh();
+        }, 1500);
     }
 
-    console.log("__ __ _  ___   _   _  _  ");
-    console.log("\\ V /| || o ) / \\ | \\| | ");
-    console.log(" \\ / | || o \\| o || \\\\ | ");
-    console.log(" |_| |_||___/|_n_||_|\\_| ");
-    console.log("----------------------------------------");
-    console.log("---- %c贵州民族大学易班工作站技术研发部 -----", "color:#336699");
-    console.log("----------------------------------------");
-    console.log("%c前端：EchoCow", "color:#0099FF");
-    console.log("%c后端：EchoCow", "color:#FFCC33");
-    console.log("%c设计：EchoCow", "color:#FF9966");
-    console.log("----------------------------------------");
+
 </script>
 </body>
 

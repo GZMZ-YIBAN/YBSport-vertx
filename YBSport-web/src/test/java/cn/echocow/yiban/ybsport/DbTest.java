@@ -10,6 +10,7 @@ import io.vertx.ext.asyncsql.PostgreSQLClient;
 import io.vertx.ext.sql.SQLConnection;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -18,12 +19,13 @@ import java.util.List;
  *
  * @author EchoCow
  * @program YBSport
- * @description db
+ * @description db 数据库读取文件测试
  * @date 2018-08-28 00:36
  * <p>
  * -----------------------------
  **/
 public class DbTest extends AbstractVerticle {
+    // 防止maven打包时运行
 //    public static void main(String[] args) {
 //        Vertx vertx = Vertx.vertx();
 //        vertx.deployVerticle(DbTest.class.getName());
@@ -47,15 +49,15 @@ public class DbTest extends AbstractVerticle {
     }
 
 
-    private void date(){
+    private void date() {
         LocalDateTime now = LocalDateTime.now();
         postgreSQLClient.getConnection(ar -> {
             if (ar.succeeded()) {
                 SQLConnection connection = ar.result();
-                connection.query("SELECT * FROM public.ybsport_time WHERE is_enable = TRUE ORDER BY id LIMIT 1",res -> {
+                connection.query("SELECT * FROM public.ybsport_time WHERE is_enable = TRUE ORDER BY id LIMIT 1", res -> {
                     if (res.succeeded()) {
                         List<JsonArray> results = res.result().getResults();
-                        if (results.size() == 0){
+                        if (results.size() == 0) {
                             LOGGER.error("none");
                         }
                         JsonArray objects = results.get(0);
@@ -64,7 +66,7 @@ public class DbTest extends AbstractVerticle {
                         LOGGER.info("start:" + start);
                         LOGGER.info("end:" + end);
                         LOGGER.info("now:" + now);
-                        if (now.isBefore(end) && now.isAfter(start)){
+                        if (now.isBefore(end) && now.isAfter(start)) {
                             LOGGER.info("ok");
                         } else {
                             LOGGER.error("no");

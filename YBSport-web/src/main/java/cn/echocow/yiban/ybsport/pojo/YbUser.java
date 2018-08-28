@@ -19,11 +19,11 @@ public class YbUser {
     private String userNick;
     private String userSex;
 
-    public YbUser(JsonObject object){
+    public YbUser(JsonObject object) {
         this.userId = object.getString("userid");
         this.userName = object.getString("username");
         this.userNick = object.getString("usernick");
-        if ("M".equals(object.getString("usersex"))){
+        if ("M".equals(object.getString("usersex"))) {
             this.userSex = "小哥哥";
         } else {
             this.userSex = "小姐姐";
@@ -31,7 +31,7 @@ public class YbUser {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return Json.encode(this);
     }
 

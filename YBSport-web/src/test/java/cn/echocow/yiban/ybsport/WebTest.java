@@ -14,7 +14,7 @@ import io.vertx.ext.web.client.WebClient;
  *
  * @author EchoCow
  * @program YBSport
- * @description 数据库测试
+ * @description 易班api请求测试
  * @date 2018-08-24 18:39
  * <p>
  * -----------------------------
@@ -28,8 +28,8 @@ public class WebTest extends AbstractVerticle {
     @Override
     public void start() {
         JsonObject parameter = new JsonObject();
-        parameter.put("access_token","8a29dfccf77ef0a8566780038");
-        parameter.put("days",1);
+        parameter.put("access_token", "8a29dfccf77ef0a8566780038");
+        parameter.put("days", 1);
         WebClient client = WebClient.create(Vertx.vertx());
 
 //        client

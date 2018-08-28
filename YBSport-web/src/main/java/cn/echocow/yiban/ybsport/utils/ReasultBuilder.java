@@ -26,6 +26,9 @@ public class ReasultBuilder {
     public static final int INSERT_ERROR = 2;
     public static final int UPDATE_ERROR = 3;
 
+    /**
+     * 防止实例化
+     */
     private ReasultBuilder() {
 
     }
@@ -40,10 +43,10 @@ public class ReasultBuilder {
 
     public static JsonObject buildError(JsonObject data, Integer code, String msg) {
         JsonObject result = new JsonObject();
-        if (data != null){
+        if (data != null) {
             result.put("data", data);
-        }else {
-            result.put("data","null");
+        } else {
+            result.put("data", "null");
         }
         if (code == null) {
             result.put("code", ERROR_500);

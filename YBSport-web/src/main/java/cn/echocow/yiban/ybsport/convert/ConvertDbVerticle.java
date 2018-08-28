@@ -18,6 +18,7 @@ import io.vertx.ext.asyncsql.PostgreSQLClient;
 import io.vertx.ext.sql.ResultSet;
 import io.vertx.ext.sql.SQLConnection;
 import io.vertx.ext.sql.UpdateResult;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -93,14 +94,20 @@ public class ConvertDbVerticle extends AbstractVerticle {
                             reply.put("body", false);
                         }
                         JsonArray objects = results.get(0);
-                        LocalDateTime start = LocalDateTime.parse(objects.getString(1));
-                        LocalDateTime end = LocalDateTime.parse(objects.getString(2));
-                        if (now.isBefore(end) && now.isAfter(start)) {
+                        if ("长期".equals(objects.getString(3))) {
                             reply.put("body", true);
-                            reply.put("start",start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                            reply.put("end",end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                            reply.put("long", true);
                         } else {
-                            reply.put("body", false);
+                            LocalDateTime start = LocalDateTime.parse(objects.getString(1));
+                            LocalDateTime end = LocalDateTime.parse(objects.getString(2));
+                            if (now.isBefore(end) && now.isAfter(start)) {
+                                reply.put("body", true);
+                                reply.put("start", start.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                                reply.put("end", end.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                                reply.put("long", false);
+                            } else {
+                                reply.put("body", false);
+                            }
                         }
                     } else {
                         reply.put("body", false);
@@ -169,6 +176,12 @@ public class ConvertDbVerticle extends AbstractVerticle {
                     JsonArray objects = results.get(0);
                     LocalDateTime start = LocalDateTime.parse(objects.getString(1));
                     LocalDateTime end = LocalDateTime.parse(objects.getString(2));
+                    String remarks = objects.getString(3);
+                    if ("长期".equals(remarks)) {
+                        connectionFuture.result().queryWithParams("SELECT t.* FROM public.ybsport_type t WHERE t.id = ?",
+                                new JsonArray().add(buy.getType()), compareFuture);
+                        return;
+                    }
                     if (!now.isBefore(end) || !now.isAfter(start)) {
                         connectionFuture.result().close();
                         message.reply(new JsonObject().put("status", "failed").put("message", "不在活动时间内哦！请在活动开放时参加~"));
@@ -188,8 +201,8 @@ public class ConvertDbVerticle extends AbstractVerticle {
                         .stream()
                         .filter(json -> {
                             if (buy.getSportSteps() >= json.getLong(1)) {
-                                reply.put("steps",json.getLong(1));
-                                reply.put("money",json.getLong(2));
+                                reply.put("steps", json.getLong(1));
+                                reply.put("money", json.getLong(2));
                                 return true;
                             }
                             return false;

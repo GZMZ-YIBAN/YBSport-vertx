@@ -9,6 +9,7 @@ import io.vertx.ext.unit.report.ReportOptions;
 
 /**
  * -----------------------------
+ * 创建接口测试模块，模块化测试。
  *
  * @author EchoCow
  * @program YBSport
@@ -33,7 +34,7 @@ public class ApiTest {
         suite.test("indexApi", context -> {
             HttpClient client = vertx.createHttpClient();
             Async async = context.async();
-            client.getNow(8888,"localhost","/",resp -> {
+            client.getNow(8888, "localhost", "/", resp -> {
                 resp.bodyHandler(body -> System.out.println(body.toString("UTF-8")));
                 client.close();
                 async.complete();

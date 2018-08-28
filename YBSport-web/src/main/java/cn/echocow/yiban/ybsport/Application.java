@@ -2,7 +2,6 @@ package cn.echocow.yiban.ybsport;
 
 import cn.echocow.yiban.ybsport.convert.ConvertDbVerticle;
 import cn.echocow.yiban.ybsport.convert.ConvertRestVerticle;
-import cn.echocow.yiban.ybsport.utils.ConfigFactory;
 import cn.echocow.yiban.ybsport.utils.VertxSingleton;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
@@ -25,7 +24,7 @@ public class Application extends AbstractVerticle {
     public static void main(String[] args) {
         System.setProperty("vertx.logger-delegate-factory-class-name",
                 "io.vertx.core.logging.Log4j2LogDelegateFactory");
-        System.getProperties().setProperty(DISABLE_DNS_RESOLVER_PROP_NAME,"true");
+        System.getProperties().setProperty(DISABLE_DNS_RESOLVER_PROP_NAME, "true");
         Vertx vertx = VertxSingleton.VERTX;
         vertx.deployVerticle(Application.class.getName());
     }

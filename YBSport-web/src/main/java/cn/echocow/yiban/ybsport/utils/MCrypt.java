@@ -10,6 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * 解密方法
  * -----------------------------
+ *
  * @author EchoLZY
  * @version 1.0
  * @date 13:52 2018/5/15
@@ -26,7 +27,8 @@ public class MCrypt {
 
     /**
      * 初始化易班应用密钥
-     * @param appId 应用 id
+     *
+     * @param appId     应用 id
      * @param secretKey 应用密钥
      */
     public MCrypt(String appId, String secretKey) {
@@ -43,6 +45,7 @@ public class MCrypt {
 
     /**
      * 加密
+     *
      * @param text 加密字符
      * @return 加密后
      * @throws Exception 异常
@@ -67,6 +70,7 @@ public class MCrypt {
 
     /**
      * 解密
+     *
      * @param code 解密字符
      * @return 解密后
      * @throws Exception 异常

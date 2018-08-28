@@ -48,8 +48,7 @@ public enum ConstEnum {
 
     private final String name;
 
-    private ConstEnum(String name)
-    {
+    private ConstEnum(String name) {
         this.name = name;
     }
 

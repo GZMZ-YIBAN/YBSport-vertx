@@ -23,14 +23,14 @@ public class StringToPojoJson {
 
     public static JsonObject toYbSportBuy(JsonArray arr) {
         return new YbSportBuy(arr.getLong(0), arr.getString(1),
-                arr.getLong(2), arr.getLong(3), arr.getString(4),arr.getBoolean(5)).toJsonObject();
+                arr.getLong(2), arr.getLong(3), arr.getString(4), arr.getBoolean(5)).toJsonObject();
     }
 
-    public static JsonObject toBuyJson(JsonArray arr){
+    public static JsonObject toBuyJson(JsonArray arr) {
         JsonObject buy = new JsonObject();
-        buy.put("date",arr.getString(0));
-        buy.put("get_money",arr.getLong(1));
-        buy.put("is_enable",arr.getBoolean(2));
+        buy.put("date", arr.getString(0));
+        buy.put("get_money", arr.getLong(1));
+        buy.put("is_enable", arr.getBoolean(2));
         return buy;
     }
 }

@@ -52,12 +52,12 @@ public class YbSportBuy {
 
     public static YbSportBuy fromJsonObject(JsonObject object) {
         boolean flag = false;
-        if (object.getBoolean("isEnable") != null){
+        if (object.getBoolean("isEnable") != null) {
             flag = object.getBoolean("isEnabled");
         }
         return new YbSportBuy(object.getLong("id"), object.getJsonObject("ybUser").toString(),
                 object.getLong("sportSteps"), object.getLong("type"), object.getString("date")
-                ,flag);
+                , flag);
     }
 
     public long getId() {
