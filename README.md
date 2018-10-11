@@ -111,17 +111,7 @@ clone 下此项目后默认没有配置模块，请自行在 project structure �
 
 ## 脱离易班使用
 
-脱离易班使用极其复杂，首先你需要自定义 **ConvertRestVerticle** 多个获取步数的方法，并要符合前端接受的 json 格式
-
-1. 修改方法  getSteps 
-2. 删除方法  checkAuth 
-3. 删除方法  sendMessage 
-4. 删除所有的验证，参数改为在 rest 接口方法内获取
-5. 自行解析以及存储和验证 ybsport_buy
-
-在 **ConvertDbVerticle** 你也要自行修改相应的验证。
-
-运行 nginx 、postgresql 、idea 中运行 cn.echocow.yiban.ybsport.Application
+由于接口是由易班提供，所以暂无法脱离易班使用。
 
 # Documentation
 请查看 [wiki](https://github.com/GZMZ-YIBAN/YBSport/wiki) 以了解更多信息
